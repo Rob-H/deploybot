@@ -4,7 +4,8 @@
   "description": "A slack bot to remind you when a commit gets to different environments",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node node_modules/mocha/bin/mocha tests --recursive",
+    "watch": "node node_modules/mocha/bin/mocha tests --recursive --watch"
   },
   "keywords": [
     "slack",
@@ -13,5 +14,9 @@
   "author": "Rob Haley <robert.haley@scribestar.com>",
   "dependencies": {
     "botkit": "^0.2.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2"
   }
 }
