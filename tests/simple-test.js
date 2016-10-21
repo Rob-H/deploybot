@@ -8,9 +8,21 @@ const deployObserver = require('../bot/deployObserver.js');
 
 describe('the bot', function() {
     describe('when there are some commits', function() {
+        before(function() {
+            return git.initRepo('testRepo')
+                .then((repo) => this.repo = repo)
+                .then((repo) => {
+                    const commits  = new Array(10).fill(undefined).map(() => this.repo.emptyCommit());
+                    return Promise.all(commits);
+                })
+                .then((commits) => this.commits = commits);
+        });
+
+        after(function() {
+            return this.repo.remove(); 
+        });
+
         beforeEach(function() {
-            this.repo = git.initRepo('./testRepo');
-            this.commits = new Array(10).map(this.repo.emptyCommit);
             this.userToken = 'robh';
             sinon.spy(messaging, 'send');
         });
@@ -28,6 +40,7 @@ describe('the bot', function() {
                     deployObserver.notify(this.commits[5]);
                 });
                 it('does not send them a message', function() {
+                    console.log(this.commits);
                     expect(messaging.send.called).to.be.false
                 });
             });
