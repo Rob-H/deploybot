@@ -9,7 +9,8 @@ const deployObserver = require('../bot/deployObserver.js');
 describe('the bot', function() {
     describe('when there are some commits', function() {
         beforeEach(function() {
-            this.commits = (new Array(10).map(git.emptyCommit));
+            this.repo = git.initRepo('./testRepo');
+            this.commits = new Array(10).map(this.repo.emptyCommit);
             this.userToken = 'robh';
             sinon.spy(messaging, 'send');
         });

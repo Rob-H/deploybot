@@ -1,4 +1,8 @@
 'use strict';
+const git = require('nodegit');
+
 module.exports = {
-    emptyCommit: () => undefined
+    initRepo: (filePath) => {
+        return { emptyCommit: () => {} };
+    }
 }
