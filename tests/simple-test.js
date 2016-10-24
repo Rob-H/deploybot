@@ -28,7 +28,6 @@ describe('the bot', function() {
 
         beforeEach(function() {
             this.userToken = 'robh';
-            this.environment = 'qa';
             sinon.spy(messaging, 'send');
         });
 
@@ -43,39 +42,39 @@ describe('the bot', function() {
                     messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed`);
                 });
 
-                describe('when a commit before that is deployed', function() {
-                    beforeEach(function() {
-                        deployObserver.notify(this.environment, this.commits[5]);
-                    });
-
-                    it('does not send them a message', function() {
-                        expect(messaging.send.called).to.be.false;
-                    });
-                });
-
-                describe('when that commit is deployed', function() {
-                    beforeEach(function() {
-                        deployObserver.notify(this.environment, this.commits[8]);
-                    });
-
-                    it(`sends a message to the ${userToken}`, function() {
-                        expect(messaging.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${this.environment}`).calledOnce).to.be.true;
-                    });
-
-                    describe('when that commit is deployed again', function() {
-
+                ['ci', 'qa'].forEach(function(environment) {
+                    describe('when a commit before that is deployed', function() {
                         beforeEach(function() {
-                            deployObserver.notify(this.environment, this.commits[8]);
+                            deployObserver.notify(environment, this.commits[5]);
                         });
 
                         it('does not send them a message', function() {
-                            expect(messaging.send.calledOnce).to.be.true;
+                            expect(messaging.send.called).to.be.false;
                         });
                     });
 
+                    describe(`when that commit is deployed to ${environment}`, function() {
+                        beforeEach(function() {
+                            deployObserver.notify(environment, this.commits[8]);
+                        });
+
+                        it(`sends a message to the ${userToken}`, function() {
+                            expect(messaging.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                        });
+
+                        describe(`when that commit is deployed to ${environment} again`, function() {
+
+                            beforeEach(function() {
+                                deployObserver.notify(environment, this.commits[8]);
+                            });
+
+                            it('does not send them a message', function() {
+                                expect(messaging.send.calledOnce).to.be.true;
+                            });
+                        });
+                    });
                 });
             });
-
         });
     });
 });
