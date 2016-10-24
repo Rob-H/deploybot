@@ -13,6 +13,12 @@ module.exports = {
     },
     send: () => undefined,
     pending: () => requests,
+    handled: (request) => {
+        const index = requests.indexOf(request);
+        if(index > -1) {
+            requests.splice(index, 1);
+        }
+    },
     clear: () => requests = []
 };
 

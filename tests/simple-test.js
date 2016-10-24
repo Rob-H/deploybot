@@ -60,6 +60,16 @@ describe('the bot', function() {
                 it('sends a message to the recipient', function() {
                     expect(messaging.send.withArgs(this.userToken, `${this.commits[8]} has just been deployed to ${this.environment}`).calledOnce).to.be.true;
                 });
+                describe('when that commit is deployed again', function() {
+
+                    beforeEach(function() {
+                        deployObserver.notify(this.environment, this.commits[8]);
+                    });
+
+                    it('does not send them a message', function() {
+                        expect(messaging.send.calledOnce).to.be.true;
+                    });
+                });
 
             });
         });
