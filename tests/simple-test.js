@@ -12,10 +12,14 @@ describe('the bot', function() {
             return git.initRepo('testRepo')
                 .then((repo) => this.repo = repo)
                 .then((repo) => {
-                    const commits  = new Array(10).fill(undefined).map(() => this.repo.emptyCommit());
-                    return Promise.all(commits);
-                })
-                .then((commits) => this.commits = commits);
+                    this.commits  = new Array(10);
+
+                    return new Array(10).fill(() => repo.emptyCommit()).reduce((prev, curr, index) => {
+                        return prev.then(() => {
+                           return curr().then((commit) => this.commits[index] = commit);
+                        });
+                    }, Promise.resolve(null));
+                });
         });
 
         after(function() {
