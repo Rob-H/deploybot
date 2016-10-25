@@ -40,6 +40,11 @@ describe('the bot', function() {
             messaging.clear();
         });
 
+        it('asking jibberish responds negatively', function() {
+            const response = messaging.receive('user1', 'this is a load of rubbish');
+            expect(response).to.be.equal('yeah, I don\'t understand that, I\'m not actually that clever.');
+        });
+
         ['user1', 'user2'].forEach(function(userToken) {
             describe(`and ${userToken} asks me to remind them when a commit is deployed`, function() {
                 beforeEach(function() {

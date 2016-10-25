@@ -11,6 +11,7 @@ module.exports = {
             });
             return 'yeah ok';
         }
+        else return 'yeah, I don\'t understand that, I\'m not actually that clever.';
     },
     pending: () => requests,
     handled: (request) => {
