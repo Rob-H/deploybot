@@ -2,14 +2,16 @@
 const chai = require('chai');
 const expect = chai.expect;
 const sinon = require('sinon');
-const git = require('./helpers/git.js');
+const gitHelpers = require('./helpers/git.js');
+const git = require('../bot/git.js');
 const messaging = require('../bot/messaging.js');
 const deployObserver = require('../bot/deployObserver.js');
+const repoDir = 'testRepo';
 
 describe('the bot', function() {
     describe('when there are some commits', function() {
         before(function() {
-            return git.initRepo('testRepo')
+            return gitHelpers.initRepo(repoDir)
                 .then((repo) => this.repo = repo)
                 .then((repo) => {
                     this.commits  = new Array(10);
@@ -29,7 +31,9 @@ describe('the bot', function() {
         beforeEach(function() {
             this.userToken = 'robh';
             this.send = sinon.spy();
-            this.deployObserver = deployObserver(this.send);
+            return git(repoDir).then(git => {
+                this.deployObserver = deployObserver(this.send, git);
+            });
         });
 
         afterEach(function() {
@@ -45,7 +49,7 @@ describe('the bot', function() {
                 ['ci', 'qa'].forEach(function(environment) {
                     describe('when a commit before that is deployed', function() {
                         beforeEach(function() {
-                            this.deployObserver.notify(environment, this.commits[5]);
+                            return this.deployObserver.notify(environment, this.commits[5]);
                         });
 
                         it('does not send them a message', function() {
@@ -55,7 +59,7 @@ describe('the bot', function() {
 
                     describe(`when that commit is deployed to ${environment}`, function() {
                         beforeEach(function() {
-                            this.deployObserver.notify(environment, this.commits[8]);
+                            return this.deployObserver.notify(environment, this.commits[8]);
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
@@ -65,7 +69,28 @@ describe('the bot', function() {
                         describe(`when that commit is deployed to ${environment} again`, function() {
 
                             beforeEach(function() {
-                                this.deployObserver.notify(environment, this.commits[8]);
+                               return this.deployObserver.notify(environment, this.commits[8]);
+                            });
+
+                            it('does not send them a message', function() {
+                                expect(this.send.calledOnce).to.be.true;
+                            });
+                        });
+                    });
+
+                    describe(`when a commit after it is deployed to ${environment}`, function() {
+                        beforeEach(function() {
+                            return this.deployObserver.notify(environment, this.commits[9]);
+                        });
+
+                        it(`sends a message to the ${userToken}`, function() {
+                            expect(this.send.withArgs(userToken, `${this.commits[9]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                        });
+
+                        describe(`when that commit is deployed to ${environment} again`, function() {
+
+                            beforeEach(function() {
+                                return this.deployObserver.notify(environment, this.commits[9]);
                             });
 
                             it('does not send them a message', function() {
