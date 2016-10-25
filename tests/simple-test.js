@@ -65,6 +65,7 @@ describe('the bot', function() {
                         describe(`when that commit is deployed to ${environment} again`, function() {
 
                             beforeEach(function() {
+                                this.deployObserver.notify(environment, this.commits[8]);
                             });
 
                             it('does not send them a message', function() {
