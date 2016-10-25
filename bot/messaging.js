@@ -11,7 +11,6 @@ module.exports = {
             });
         }
     },
-    send: () => undefined,
     pending: () => requests,
     handled: (request) => {
         const index = requests.indexOf(request);

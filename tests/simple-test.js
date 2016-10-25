@@ -28,12 +28,12 @@ describe('the bot', function() {
 
         beforeEach(function() {
             this.userToken = 'robh';
-            sinon.spy(messaging, 'send');
+            this.send = sinon.spy();
+            this.deployObserver = deployObserver(this.send);
         });
 
         afterEach(function() {
             messaging.clear();
-            messaging.send.restore();
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
@@ -45,31 +45,30 @@ describe('the bot', function() {
                 ['ci', 'qa'].forEach(function(environment) {
                     describe('when a commit before that is deployed', function() {
                         beforeEach(function() {
-                            deployObserver.notify(environment, this.commits[5]);
+                            this.deployObserver.notify(environment, this.commits[5]);
                         });
 
                         it('does not send them a message', function() {
-                            expect(messaging.send.called).to.be.false;
+                            expect(this.send.called).to.be.false;
                         });
                     });
 
                     describe(`when that commit is deployed to ${environment}`, function() {
                         beforeEach(function() {
-                            deployObserver.notify(environment, this.commits[8]);
+                            this.deployObserver.notify(environment, this.commits[8]);
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            expect(messaging.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                            expect(this.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
                         });
 
                         describe(`when that commit is deployed to ${environment} again`, function() {
 
                             beforeEach(function() {
-                                deployObserver.notify(environment, this.commits[8]);
                             });
 
                             it('does not send them a message', function() {
-                                expect(messaging.send.calledOnce).to.be.true;
+                                expect(this.send.calledOnce).to.be.true;
                             });
                         });
                     });
