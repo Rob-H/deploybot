@@ -43,7 +43,11 @@ describe('the bot', function() {
         ['user1', 'user2'].forEach(function(userToken) {
             describe(`and ${userToken} asks me to remind them when a commit is deployed`, function() {
                 beforeEach(function() {
-                    messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed`);
+                    this.response = messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed`);
+                });
+
+                it('the bot responds affirmatively', function() {
+                    expect(this.response).to.equal('yeah ok');
                 });
 
                 ['ci', 'qa'].forEach(function(environment) {

@@ -9,6 +9,7 @@ module.exports = {
                 userToken, 
                 commitHash
             });
+            return 'yeah ok';
         }
     },
     pending: () => requests,

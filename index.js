@@ -25,8 +25,8 @@ const send = (user, message) => {
 
 controller.on('direct_message',function(bot,message) {
     console.log('MESSAGE', message); //jshint ignore:line
-    messaging.receive(message.channel, message.text);
-    bot.reply(message, 'yeah ok');
+    const response = messaging.receive(message.channel, message.text);
+    bot.reply(message, response);
 });
 
 setInterval(() => {
