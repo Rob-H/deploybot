@@ -34,7 +34,12 @@ class GitRepository {
     }
 
     remove() {
-        return fse.remove(this.repoPath); 
+        return new Promise((resolve, reject) => {
+            fse.remove(this.repoPath, (err) => {
+                if(err) reject(err);
+                else resolve();
+            }); 
+        });
     }
 }
 
