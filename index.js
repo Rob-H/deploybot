@@ -1,6 +1,12 @@
 const Botkit = require('botkit');
 const messaging = require('./bot/messaging.js');
 const deployObserver = require('./bot/deployObserver.js');
+const git = require('./bot/git.js');
+
+const gitObj = git.initAtLocation('../../dotfiles', 'https://RobH@bitbucket.org/RobH/deploy-bot.git');
+//const gitObj = git.initAtLocation('.', 'https://RobH@bitbucket.org/RobH/deploy-bot.git');
+//const gitObj = git.initAtLocation('bot', 'https://RobH@bitbucket.org/RobH/deploy-bot.git');
+return;
 
 if (!process.env.token) {
     console.log('Error: Specify token in environment');
@@ -33,6 +39,6 @@ setInterval(() => {
     const commits = messaging.pending();
     if(commits.length > 0){
         console.log('DEPLOYING', commits[0]); //jshint ignore:line
-        deployObserver(send).notify('qa', commits[0].commitHash);
+        deployObserver(send, gitObj).notify('qa', commits[0].commitHash);
     }
 }, 2000);

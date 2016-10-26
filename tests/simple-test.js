@@ -31,7 +31,7 @@ describe('the bot', function() {
         beforeEach(function() {
             this.userToken = 'robh';
             this.send = sinon.spy();
-            return git(repoDir).then(git => {
+            return git.openExisting(repoDir).then(git => {
                 this.deployObserver = deployObserver(this.send, git);
             });
         });

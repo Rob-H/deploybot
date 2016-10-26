@@ -1,7 +1,7 @@
 'use strict';
 const nodegit = require('nodegit');
-const path = require("path");
-const fse = require("fs-extra");
+const path = require('path');
+const fse = require('fs-extra');
 const sig = nodegit.Signature.create('test user', 'test@test.com', 0, 0);
 
 class GitRepository {
@@ -69,7 +69,7 @@ module.exports = {
                         }) 
                         .then(() => resolve(new GitRepository(repository, path.resolve(repoDir))))
                         .catch(err => {
-                            throw err
+                            reject(err);
                         });
                 }
             })
