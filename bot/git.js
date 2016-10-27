@@ -1,7 +1,7 @@
 'use strict';
 const nodegit = require('nodegit');
 const path = require('path');
-const fse = require('fs-extra');
+const fse = require('../promised-file-system.js');
 
 function getRepoObj(repo) {
     return {
@@ -36,7 +36,14 @@ function openExisting(repoPath) {
 }
 
 function cleanAndClone(repoPath, repoUrl, creds) {
-    return nodegit.Clone(repoUrl, repoPath);
+    return fse.ensureEmptyDir(repoPath)
+    .then(() =>  nodegit.Clone(repoUrl, repoPath, {
+        fetchOpts: {
+            callbacks: {
+                credentials: () => creds
+            }
+        }
+    }));
 }
 
 function initAtLocation(repoPath, repoUrl, creds) {
@@ -49,11 +56,13 @@ function initAtLocation(repoPath, repoUrl, creds) {
         })
         .then(() => origRepo, () => cleanAndClone(repoPath, repoUrl, creds))
         .then(getRepoObj)
-        .then((repo) => console.log('finally', repo));
 }
 
 module.exports = {
     openExisting,
-    initAtLocation
+    initAtLocation,
+    getCreds: (username, password) => {
+        return nodegit.Cred.userpassPlaintextNew(username, password);
+    }
 };
 
