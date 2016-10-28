@@ -11,7 +11,7 @@ if (!process.env.token) {
 
 git.initAtLocation('repository', 'https://RobH@bitbucket.org/RobH/deploy-bot.git', git.getCreds('username', 'password'))
     .then(gitObj => {
-        const controller = Botkit.slackbot({debug: true });
+        const controller = Botkit.slackbot({debug: false });
 
         const bot = controller.spawn({
             token: process.env.token    
@@ -28,7 +28,6 @@ git.initAtLocation('repository', 'https://RobH@bitbucket.org/RobH/deploy-bot.git
         };
 
         controller.on('direct_message',function(bot,message) {
-            console.log('MESSAGE', message); //jshint ignore:line
             const response = messaging.receive(message.channel, message.text);
             bot.reply(message, response);
         });
@@ -36,7 +35,6 @@ git.initAtLocation('repository', 'https://RobH@bitbucket.org/RobH/deploy-bot.git
         setInterval(() => {
             const commits = messaging.pending();
             if(commits.length > 0){
-                console.log('DEPLOYING', commits[0]); //jshint ignore:line
                 deployObserver(send, gitObj).notify('qa', commits[0].commitHash);
             }
         }, 2000);
