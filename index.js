@@ -2,6 +2,8 @@ const Botkit = require('botkit');
 const messaging = require('./bot/messaging.js');
 const deployObserver = require('./bot/deployObserver.js');
 const git = require('./bot/git.js');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 
 if (!process.env.token) {
@@ -9,7 +11,12 @@ if (!process.env.token) {
     process.exit(1);
 }
 
-git.initAtLocation('repository', 'https://RobH@bitbucket.org/RobH/deploy-bot.git', git.getCreds('username', 'password'))
+if(!process.env.gitRepoUrl) {
+    console.log('Error: Specify git repo url in environment');
+    process.exit(1);
+}
+
+git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.env.gitUserName, process.env.gitPassword))
     .then(gitObj => {
         const controller = Botkit.slackbot({debug: false });
 
@@ -32,11 +39,18 @@ git.initAtLocation('repository', 'https://RobH@bitbucket.org/RobH/deploy-bot.git
             bot.reply(message, response);
         });
 
-        setInterval(() => {
-            const commits = messaging.pending();
-            if(commits.length > 0){
-                deployObserver(send, gitObj).notify('qa', commits[0].commitHash);
-            }
-        }, 2000);
+        const app = express();
+        app.use(bodyParser.json());
+
+        app.post('/', function(req, res) {
+            console.log('received', req.body);
+            deployObserver(send, gitObj)
+                .notify(req.body.environment, req.body.commitHash)
+                .then(() => res.sendStatus(200))
+                .catch(() => res.sendStatus(500));
+        });
+
+        app.listen(8080, () => console.log(`listening for deployment notifications`));
+
     });
 

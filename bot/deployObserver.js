@@ -7,7 +7,7 @@ module.exports = function(send, git){
                 messaging.pending().map(request => {
                     return git.hasBeenDeployed(request.commitHash, commit).then(hasBeenDeployed => {
                         if(hasBeenDeployed) {
-                            send(request.userToken, `${commit} has just been deployed to ${environment}`);
+                            send(request.userToken, `${request.commitHash} has just been deployed to ${environment}`);
                             messaging.handled(request);
                         }
                         return hasBeenDeployed;

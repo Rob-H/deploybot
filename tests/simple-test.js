@@ -93,7 +93,7 @@ describe('the bot', function() {
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            expect(this.send.withArgs(userToken, `${this.commits[9]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                            expect(this.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
                         });
 
                         describe(`when that commit is deployed to ${environment} again`, function() {
