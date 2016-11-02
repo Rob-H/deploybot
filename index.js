@@ -52,5 +52,6 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         app.listen(8080, () => console.log(`listening for deployment notifications`));
 
-    });
+    })
+    .catch(err => console.log(err));
 
