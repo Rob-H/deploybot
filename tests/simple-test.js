@@ -2,16 +2,18 @@
 const chai = require('chai');
 const expect = chai.expect;
 const sinon = require('sinon');
+const path = require('path');
 const gitHelpers = require('./helpers/git.js');
 const git = require('../bot/git.js');
 const messaging = require('../bot/messaging.js');
 const deployObserver = require('../bot/deployObserver.js');
-const repoDir = 'testRepo';
+const remoteRepoDir = 'remoteRepo';
+const repoDir = 'repoDir';
 
 describe('the bot', function() {
     describe('when there are some commits', function() {
         before(function() {
-            return gitHelpers.initRepo(repoDir)
+            return gitHelpers.initRepo(remoteRepoDir)
                 .then((repo) => this.repo = repo)
                 .then((repo) => {
                     this.commits  = new Array(10);
@@ -31,7 +33,7 @@ describe('the bot', function() {
         beforeEach(function() {
             this.userToken = 'robh';
             this.send = sinon.spy();
-            return git.openExisting(repoDir).then(git => {
+            return git.initAtLocation(repoDir, `file://${path.resolve(remoteRepoDir)}`).then(git => {
                 this.deployObserver = deployObserver(this.send, git);
             });
         });
