@@ -3,14 +3,24 @@ const nodegit = require('nodegit');
 const path = require('path');
 const fse = require('../promised-file-system.js');
 
-function getRepoObj(repo) {
-    return {
-        hasBeenDeployed: (targetCommit, deployedCommit) => {
-            return nodegit.Merge.base(repo, targetCommit, deployedCommit)
-            .then(oid => oid.toString() === targetCommit);
-
-        }   
-    };
+function getRepoObj(creds) {
+    return function(repo) {
+        return {
+            fetch: () => {
+                return repo.fetchAll({ 
+                    fetchOpts: {
+                        callbacks: {
+                            credentials: () => creds
+                        }
+                    }
+                });
+            },
+            hasBeenDeployed: (targetCommit, deployedCommit) => {
+                return nodegit.Merge.base(repo, targetCommit, deployedCommit)
+                    .then(oid => oid.toString() === targetCommit);
+            }   
+        };
+    }
 }
 
 function repoContainsCorrectRemote(repo, remoteUrl) {
@@ -28,11 +38,6 @@ function repoContainsCorrectRemote(repo, remoteUrl) {
 
 function openRepo(repoPath) {
     return nodegit.Repository.open(path.resolve(repoPath))
-}
-
-function openExisting(repoPath) {
-    return openRepo(repoPath)
-        .then(getRepoObj);
 }
 
 function cleanAndClone(repoPath, repoUrl, creds) {
@@ -55,11 +60,10 @@ function initAtLocation(repoPath, repoUrl, creds) {
             if(!hasCorrectRemote) throw new Error('The folder you specified is a git repo but for the wrong remote url');
         })
         .then(() => origRepo, () => cleanAndClone(repoPath, repoUrl, creds))
-        .then(getRepoObj)
+        .then(getRepoObj(creds))
 }
 
 module.exports = {
-    openExisting,
     initAtLocation,
     getCreds: (username, password) => {
         return nodegit.Cred.userpassPlaintextNew(username, password);

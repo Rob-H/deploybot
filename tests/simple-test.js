@@ -109,6 +109,19 @@ describe('the bot', function() {
                             });
                         });
                     });
+
+                    describe(`when a new commit is deployed to ${environment}`, function() {
+                        beforeEach(function() {
+                            return this.repo
+                                .emptyCommit()
+                                .then((commit) => this.deployObserver.notify(environment, commit));
+                        });
+
+                        it(`sends a message to the ${userToken}`, function() {
+                            expect(this.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                        });
+                    
+                    });
                 });
             });
         });
