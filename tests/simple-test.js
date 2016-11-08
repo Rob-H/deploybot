@@ -7,6 +7,7 @@ const gitHelpers = require('./helpers/git.js');
 const git = require('../bot/git.js');
 const messaging = require('../bot/messaging.js');
 const deployObserver = require('../bot/deployObserver.js');
+const fse = require('../promised-file-system.js');
 const remoteRepoDir = 'remoteRepo';
 const repoDir = 'repoDir';
 
@@ -40,6 +41,7 @@ describe('the bot', function() {
 
         afterEach(function() {
             messaging.clear();
+            return fse.removeDir(repoDir); 
         });
 
         it('asking jibberish responds negatively', function() {
@@ -110,7 +112,7 @@ describe('the bot', function() {
                         });
                     });
 
-                    describe(`when a new commit is deployed to ${environment}`, function() {
+                    describe(`when a new remote commit is deployed to ${environment}`, function() {
                         beforeEach(function() {
                             return this.repo
                                 .emptyCommit()
