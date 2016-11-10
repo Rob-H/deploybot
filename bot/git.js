@@ -3,6 +3,8 @@ const nodegit = require('nodegit');
 const path = require('path');
 const fse = require('../promised-file-system.js');
 
+nodegit.enableThreadSafety();
+
 function getRepoObj(creds) {
     return function(repo) {
         return {
@@ -10,7 +12,7 @@ function getRepoObj(creds) {
                 return repo.fetchAll({ 
                     fetchOpts: {
                         callbacks: {
-                            credentials: () => creds
+                            credentials: () => nodegit.Cred.userpassPlaintextNew(creds.username, creds.password)
                         }
                     }
                 });
@@ -41,14 +43,26 @@ function openRepo(repoPath) {
 }
 
 function cleanAndClone(repoPath, repoUrl, creds) {
+    var haveNotAlreadyAsked = true;
     return fse.ensureEmptyDir(repoPath)
-    .then(() =>  nodegit.Clone(repoUrl, repoPath, {
-        fetchOpts: {
-            callbacks: {
-                credentials: () => creds
+        .then(() =>  nodegit.Clone(repoUrl, repoPath, {
+            fetchOpts: {
+                callbacks: {
+                    credentials: () => {
+                        if(haveNotAlreadyAsked) {
+                            haveNotAlreadyAsked = false;
+                            return nodegit.Cred.userpassPlaintextNew(creds.username, creds.password);
+                        }
+                        else return nodegit.Cred.defaultNew();
+                    }
+                }
             }
-        }
-    }));
+        }))
+        .catch((err) => {
+            if(err.message == 'credentials callback returned an invalid cred type') {
+                throw new Error('invalid credentials provided');
+            } else throw err;
+        });
 }
 
 function initAtLocation(repoPath, repoUrl, creds) {
@@ -66,7 +80,7 @@ function initAtLocation(repoPath, repoUrl, creds) {
 module.exports = {
     initAtLocation,
     getCreds: (username, password) => {
-        return nodegit.Cred.userpassPlaintextNew(username, password);
+        return { username, password };
     }
 };
 
