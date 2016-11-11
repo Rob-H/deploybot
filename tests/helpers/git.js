@@ -33,6 +33,10 @@ class GitRepository {
             });
     }
 
+    addRemote(remoteUrl) {
+        return nodegit.Remote.create(this.nodegitRepo, 'origin', remoteUrl);
+    }
+
     remove() {
         return fse.removeDir(this.repoPath);
     }

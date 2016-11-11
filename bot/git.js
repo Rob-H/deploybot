@@ -5,17 +5,32 @@ const fse = require('../promised-file-system.js');
 
 nodegit.enableThreadSafety();
 
+function provideCredsOnce(creds) {
+    let haveNotAlreadyAsked = true;
+    return () => {
+        if(haveNotAlreadyAsked) {
+            haveNotAlreadyAsked = false;
+            return nodegit.Cred.userpassPlaintextNew(creds.username, creds.password);
+        }
+        else return nodegit.Cred.defaultNew();
+    }
+}
+
+function authErrorHandler(err) {
+    if(err.message == 'credentials callback returned an invalid cred type') {
+        throw new Error('invalid credentials provided');
+    } else throw err;
+}
+
 function getRepoObj(creds) {
     return function(repo) {
         return {
             fetch: () => {
                 return repo.fetchAll({ 
-                    fetchOpts: {
-                        callbacks: {
-                            credentials: () => nodegit.Cred.userpassPlaintextNew(creds.username, creds.password)
-                        }
+                    callbacks: {
+                        credentials: provideCredsOnce(creds)
                     }
-                });
+                }).catch(authErrorHandler);
             },
             hasBeenDeployed: (targetCommit, deployedCommit) => {
                 return nodegit.Merge.base(repo, targetCommit, deployedCommit)
@@ -43,26 +58,15 @@ function openRepo(repoPath) {
 }
 
 function cleanAndClone(repoPath, repoUrl, creds) {
-    var haveNotAlreadyAsked = true;
     return fse.ensureEmptyDir(repoPath)
         .then(() =>  nodegit.Clone(repoUrl, repoPath, {
             fetchOpts: {
                 callbacks: {
-                    credentials: () => {
-                        if(haveNotAlreadyAsked) {
-                            haveNotAlreadyAsked = false;
-                            return nodegit.Cred.userpassPlaintextNew(creds.username, creds.password);
-                        }
-                        else return nodegit.Cred.defaultNew();
-                    }
+                    credentials: provideCredsOnce(creds)
                 }
             }
         }))
-        .catch((err) => {
-            if(err.message == 'credentials callback returned an invalid cred type') {
-                throw new Error('invalid credentials provided');
-            } else throw err;
-        });
+        .catch(authErrorHandler);
 }
 
 function initAtLocation(repoPath, repoUrl, creds) {
