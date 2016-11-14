@@ -10,6 +10,8 @@ const repoDir = 'repoDir';
 const ourRemoteUrl = 'https://RobH@bitbucket.org/RobH/deploy-bot.git'
 
 describe('when opening a git repo', function() {
+    this.timeout(5000);
+    
     afterEach(function(){
         return fse.removeDir(repoDir); 
     });
