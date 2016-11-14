@@ -21,7 +21,17 @@ class DoNotUnderstandMessage extends Message {
     }
 }
 
+class CommitDeployedMessage extends Message {
+    constructor(commitHash, environment) {
+        super();
+        this.commitHash = commitHash;
+        this.environment = environment
+        this.wordings = [() => `${this.commitHash} has just been deployed to ${this.environment}`];
+    }
+}
+
 module.exports = {
     ConfirmationMessage,
-    DoNotUnderstandMessage
+    DoNotUnderstandMessage,
+    CommitDeployedMessage
 };

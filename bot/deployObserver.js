@@ -1,5 +1,6 @@
 'use strict';
 const messaging = require('./messaging.js');
+const messages = require('./messages.js');
 module.exports = function(send, git){ 
     return {
         notify: (environment, commit) => {
@@ -8,7 +9,9 @@ module.exports = function(send, git){
                     messaging.pending().map(request => {
                         return git.hasBeenDeployed(request.commitHash, commit).then(hasBeenDeployed => {
                             if(hasBeenDeployed) {
-                                send(request.userToken, `${request.commitHash} has just been deployed to ${environment}`);
+                                send(
+                                    request.userToken, 
+                                    new messages.CommitDeployedMessage(request.commitHash, environment).getText());
                                 messaging.handled(request);
                             }
                             return hasBeenDeployed;
