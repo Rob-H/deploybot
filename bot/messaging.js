@@ -1,4 +1,6 @@
 'use strict';
+const messages = require('./messages.js');
+
 let requests = [];
 module.exports = {
     receive: (userToken, message) => {
@@ -9,9 +11,9 @@ module.exports = {
                 userToken, 
                 commitHash
             });
-            return 'yeah ok';
+            return new messages.ConfirmationMessage().getText();
         }
-        else return 'yeah, I don\'t understand that, I\'m not actually that clever.';
+        else return new messages.DoNotUnderstandMessage().getText();
     },
     pending: () => requests,
     handled: (request) => {
