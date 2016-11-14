@@ -12,6 +12,15 @@ const fse = require('../promised-file-system.js');
 const remoteRepoDir = 'remoteRepo';
 const repoDir = 'repoDir';
 
+function assertCommitNotificationSent(send, userToken, commitHash, environment) {
+    expect(send.calledOnce).to.be.true;
+    expect(send.getCall(0).args[0]).to.be.equal(userToken);
+    const message = send.getCall(0).args[1];
+    expect(message).to.be.an.instanceof(messages.CommitDeployedMessage);
+    expect(message.commitHash).to.be.equal(commitHash);
+    expect(message.environment).to.be.equal(environment);
+}
+
 describe('the bot', function() {
     describe('when there are some commits', function() {
         before(function() {
@@ -77,7 +86,7 @@ describe('the bot', function() {
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            expect(this.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                            assertCommitNotificationSent(this.send, userToken, this.commits[8], environment);
                         });
 
                         describe(`when that commit is deployed to ${environment} again`, function() {
@@ -98,7 +107,7 @@ describe('the bot', function() {
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            expect(this.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                            assertCommitNotificationSent(this.send, userToken, this.commits[8], environment);
                         });
 
                         describe(`when that commit is deployed to ${environment} again`, function() {
@@ -121,9 +130,8 @@ describe('the bot', function() {
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            expect(this.send.withArgs(userToken, `${this.commits[8]} has just been deployed to ${environment}`).calledOnce).to.be.true;
+                            assertCommitNotificationSent(this.send, userToken, this.commits[8], environment);
                         });
-                    
                     });
                 });
             });

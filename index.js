@@ -26,7 +26,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         const send = (user, message) => {
             bot.say({
-                text: message,
+                text: message.getText(),
                 channel: user 
             }, function(err, response) {
                 if(err) console.log(err); 

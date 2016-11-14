@@ -11,7 +11,7 @@ module.exports = function(send, git){
                             if(hasBeenDeployed) {
                                 send(
                                     request.userToken, 
-                                    new messages.CommitDeployedMessage(request.commitHash, environment).getText());
+                                    new messages.CommitDeployedMessage(request.commitHash, environment));
                                 messaging.handled(request);
                             }
                             return hasBeenDeployed;
