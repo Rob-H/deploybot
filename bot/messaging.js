@@ -11,9 +11,9 @@ module.exports = {
                 userToken, 
                 commitHash
             });
-            return new messages.ConfirmationMessage().getText();
+            return new messages.ConfirmationMessage();
         }
-        else return new messages.DoNotUnderstandMessage().getText();
+        else return new messages.DoNotUnderstandMessage();
     },
     pending: () => requests,
     handled: (request) => {

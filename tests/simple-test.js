@@ -6,6 +6,7 @@ const path = require('path');
 const gitHelpers = require('./helpers/git.js');
 const git = require('../bot/git.js');
 const messaging = require('../bot/messaging.js');
+const messages = require('../bot/messages.js');
 const deployObserver = require('../bot/deployObserver.js');
 const fse = require('../promised-file-system.js');
 const remoteRepoDir = 'remoteRepo';
@@ -46,7 +47,7 @@ describe('the bot', function() {
 
         it('asking jibberish responds negatively', function() {
             const response = messaging.receive('user1', 'this is a load of rubbish');
-            expect(response).to.be.equal('yeah, I don\'t understand that, I\'m not actually that clever.');
+            expect(response).to.be.an.instanceof(messages.DoNotUnderstandMessage);
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
@@ -56,7 +57,7 @@ describe('the bot', function() {
                 });
 
                 it('the bot responds affirmatively', function() {
-                    expect(this.response).to.equal('yeah ok');
+                    expect(this.response).to.be.an.instanceof(messages.ConfirmationMessage);
                 });
 
                 ['ci', 'qa'].forEach(function(environment) {

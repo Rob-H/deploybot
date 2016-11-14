@@ -36,7 +36,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         controller.on('direct_message',function(bot,message) {
             const response = messaging.receive(message.channel, message.text);
-            bot.reply(message, response);
+            bot.reply(message, response.getText());
         });
 
         const app = express();
