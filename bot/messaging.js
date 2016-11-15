@@ -4,9 +4,9 @@ const messages = require('./messages.js');
 let requests = [];
 module.exports = {
     receive: (userToken, message) => {
-        if(message.startsWith('remind me when ') && message.endsWith(' is deployed')){
-            const withoutPreamble = message.substring();
-            const commitHash = message.substring('remind me when '.length, message.length - ' is deployed'.length);
+        let result;
+        if(result = /^remind me when (.*) is deployed$/.exec(message)){
+            const commitHash = result[1];
             if((/[0-9a-f]{40}/).exec(commitHash)) {
                 requests.push({
                     userToken, 
