@@ -17,7 +17,11 @@ class ConfirmationMessage extends Message {
 class DoNotUnderstandMessage extends Message {
     constructor() {
         super();
-        this.wordings = [() => 'yeah, I don\'t understand that, I\'m not actually that clever.'];
+        this.wordings = [
+            () => 'yeah, I don\'t understand that, I\'m not actually that clever.' 
+                + '\ntry this:'
+                + '\n`remind me when {full git commit hash} is deployed`'
+        ];
     }
 }
 
