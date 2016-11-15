@@ -7,11 +7,13 @@ module.exports = {
         if(message.startsWith('remind me when ') && message.endsWith(' is deployed')){
             const withoutPreamble = message.substring();
             const commitHash = message.substring('remind me when '.length, message.length - ' is deployed'.length);
-            requests.push({
-                userToken, 
-                commitHash
-            });
-            return new messages.ConfirmationMessage();
+            if((/[0-9a-f]{40}/).exec(commitHash)) {
+                requests.push({
+                    userToken, 
+                    commitHash
+                });
+                return new messages.ConfirmationMessage();
+            } else return new messages.CommitNotRecognisedMessage(commitHash);
         }
         else return new messages.DoNotUnderstandMessage();
     },

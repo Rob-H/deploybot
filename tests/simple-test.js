@@ -60,6 +60,12 @@ describe('the bot', function() {
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
+            it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
+                const partialCommit = this.commits[8].substring(0, 7);
+                const response = messaging.receive(userToken, `remind me when ${partialCommit} is deployed`);
+                expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
+                expect(response.commmitRequested).to.be.equal(partialCommit);
+            });
             describe(`and ${userToken} asks me to remind them when a commit is deployed`, function() {
                 beforeEach(function() {
                     this.response = messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed`);

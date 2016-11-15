@@ -30,8 +30,17 @@ class CommitDeployedMessage extends Message {
     }
 }
 
+class CommitNotRecognisedMessage extends Message {
+    constructor(commmitRequested) {
+        super();
+        this.commmitRequested = commmitRequested;
+        this.wordings = [() => `sorry I didn't recognise "${this.commmitRequested}", I currently only understand full commit hashe, I currently only understand full commit hashes.`];
+    }
+}
+
 module.exports = {
     ConfirmationMessage,
     DoNotUnderstandMessage,
-    CommitDeployedMessage
+    CommitDeployedMessage,
+    CommitNotRecognisedMessage
 };
