@@ -5,12 +5,14 @@ let requests = [];
 module.exports = {
     receive: (userToken, message) => {
         let result;
-        if(result = /^remind me when (.*) is deployed$/.exec(message)){
+        if(result = /^remind me when (.*) is deployed to (.*)$/.exec(message)){
             const commitHash = result[1];
+            const environment = result[2];
             if((/[0-9a-f]{40}/).exec(commitHash)) {
                 requests.push({
                     userToken, 
-                    commitHash
+                    commitHash,
+                    environment
                 });
                 return new messages.ConfirmationMessage();
             } else return new messages.CommitNotRecognisedMessage(commitHash);

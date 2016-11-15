@@ -20,7 +20,7 @@ class DoNotUnderstandMessage extends Message {
         this.wordings = [
             () => 'yeah, I don\'t understand that, I\'m not actually that clever.' 
                 + '\ntry this:'
-                + '\n`remind me when {full git commit hash} is deployed`'
+                + '\n`remind me when {full git commit hash} is deployed to {environment}`'
         ];
     }
 }

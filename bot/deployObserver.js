@@ -6,7 +6,7 @@ module.exports = function(send, git){
         notify: (environment, commit) => {
             return git.fetch().then(() => {
                 return Promise.all(
-                    messaging.pending().map(request => {
+                    messaging.pending().filter(x => x.environment === environment).map(request => {
                         return git.hasBeenDeployed(request.commitHash, commit).then(hasBeenDeployed => {
                             if(hasBeenDeployed) {
                                 send(

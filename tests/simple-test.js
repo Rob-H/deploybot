@@ -62,20 +62,21 @@ describe('the bot', function() {
         ['user1', 'user2'].forEach(function(userToken) {
             it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
                 const partialCommit = this.commits[8].substring(0, 7);
-                const response = messaging.receive(userToken, `remind me when ${partialCommit} is deployed`);
+                const response = messaging.receive(userToken, `remind me when ${partialCommit} is deployed to beta`);
                 expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
                 expect(response.commmitRequested).to.be.equal(partialCommit);
             });
-            describe(`and ${userToken} asks me to remind them when a commit is deployed`, function() {
-                beforeEach(function() {
-                    this.response = messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed`);
-                });
 
-                it('the bot responds affirmatively', function() {
-                    expect(this.response).to.be.an.instanceof(messages.ConfirmationMessage);
-                });
+            ['ci', 'qa'].forEach(function(environment) {
+                describe(`and ${userToken} asks me to remind them when a commit is deployed to ${environment}`, function() {
+                    beforeEach(function() {
+                        this.response = messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`);
+                    });
 
-                ['ci', 'qa'].forEach(function(environment) {
+                    it('the bot responds affirmatively', function() {
+                        expect(this.response).to.be.an.instanceof(messages.ConfirmationMessage);
+                    });
+
                     describe('when a commit before that is deployed', function() {
                         beforeEach(function() {
                             return this.deployObserver.notify(environment, this.commits[5]);
@@ -84,6 +85,11 @@ describe('the bot', function() {
                         it('does not send them a message', function() {
                             expect(this.send.called).to.be.false;
                         });
+                    });
+
+                    it('when that commit is deployed to beta', function() {
+                        this.deployObserver.notify('beta', this.commits[8])
+                            .then(() => expect(this.send.called).to.be.false);
                     });
 
                     describe(`when that commit is deployed to ${environment}`, function() {
@@ -98,7 +104,7 @@ describe('the bot', function() {
                         describe(`when that commit is deployed to ${environment} again`, function() {
 
                             beforeEach(function() {
-                               return this.deployObserver.notify(environment, this.commits[8]);
+                                return this.deployObserver.notify(environment, this.commits[8]);
                             });
 
                             it('does not send them a message', function() {
@@ -131,8 +137,8 @@ describe('the bot', function() {
                     describe(`when a new remote commit is deployed to ${environment}`, function() {
                         beforeEach(function() {
                             return this.repo
-                                .emptyCommit()
-                                .then((commit) => this.deployObserver.notify(environment, commit));
+                            .emptyCommit()
+                            .then((commit) => this.deployObserver.notify(environment, commit));
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
