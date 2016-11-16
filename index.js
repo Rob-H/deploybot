@@ -6,8 +6,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 
-if (!process.env.token) {
-    console.log('Error: Specify token in environment');
+if (!process.env.slackToken) {
+    console.log('Error: Specify slackToken in environment');
     process.exit(1);
 }
 
@@ -21,7 +21,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         const controller = Botkit.slackbot({debug: false });
 
         const bot = controller.spawn({
-            token: process.env.token    
+            token: process.env.slackToken    
         }).startRTM();
 
         const send = (user, message) => {
