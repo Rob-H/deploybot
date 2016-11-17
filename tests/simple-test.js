@@ -6,7 +6,8 @@ const path = require('path');
 const gitHelpers = require('./helpers/git.js');
 const git = require('../bot/git.js');
 const messages = require('../bot/messages.js');
-const store = require('../bot/inMemoryRequestStorage.js');
+const storePath = path.resolve('test.db');
+const store = require('../bot/nedbPersistentStorage.js')(storePath);
 const responder = require('../bot/responder.js')(store);
 const deployObserver = require('../bot/deployObserver.js');
 const fse = require('../promised-file-system.js');
@@ -39,7 +40,7 @@ describe('the bot', function() {
         });
 
         after(function() {
-            return this.repo.remove(); 
+            return this.repo.remove().then(() => fse.removeDir(storePath)); 
         });
 
         beforeEach(function() {
