@@ -5,7 +5,7 @@ const sinon = require('sinon');
 const path = require('path');
 const gitHelpers = require('./helpers/git.js');
 const git = require('../bot/git.js');
-const messaging = require('../bot/messaging.js');
+const messaging = require('../bot/responder.js');
 const messages = require('../bot/messages.js');
 const deployObserver = require('../bot/deployObserver.js');
 const fse = require('../promised-file-system.js');
@@ -55,14 +55,14 @@ describe('the bot', function() {
         });
 
         it('asking jibberish responds negatively', function() {
-            const response = messaging.receive('user1', 'this is a load of rubbish');
+            const response = messaging.handleMessage('user1', 'this is a load of rubbish');
             expect(response).to.be.an.instanceof(messages.DoNotUnderstandMessage);
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
             it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
                 const partialCommit = this.commits[8].substring(0, 7);
-                const response = messaging.receive(userToken, `remind me when ${partialCommit} is deployed to beta`);
+                const response = messaging.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`);
                 expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
                 expect(response.commmitRequested).to.be.equal(partialCommit);
             });
@@ -70,7 +70,7 @@ describe('the bot', function() {
             ['ci', 'qa'].forEach(function(environment) {
                 describe(`and ${userToken} asks me to remind them when a commit is deployed to ${environment}`, function() {
                     beforeEach(function() {
-                        this.response = messaging.receive(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`);
+                        this.response = messaging.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`);
                     });
 
                     it('the bot responds affirmatively', function() {

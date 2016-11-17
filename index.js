@@ -1,5 +1,5 @@
 const Botkit = require('botkit');
-const messaging = require('./bot/messaging.js');
+const messaging = require('./bot/responder.js');
 const deployObserver = require('./bot/deployObserver.js');
 const git = require('./bot/git.js');
 const express = require('express');
@@ -35,7 +35,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         };
 
         controller.on('direct_message',function(bot,message) {
-            const response = messaging.receive(message.channel, message.text);
+            const response = messaging.handleMessage(message.channel, message.text);
             bot.reply(message, response.getText());
         });
 

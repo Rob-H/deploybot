@@ -1,5 +1,5 @@
 'use strict';
-const messaging = require('./messaging.js');
+const messaging = require('./responder.js');
 const messages = require('./messages.js');
 module.exports = function(send, git){ 
     return {
