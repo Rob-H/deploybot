@@ -5,8 +5,9 @@ const sinon = require('sinon');
 const path = require('path');
 const gitHelpers = require('./helpers/git.js');
 const git = require('../bot/git.js');
-const messaging = require('../bot/responder.js');
 const messages = require('../bot/messages.js');
+const store = require('../bot/inMemoryRequestStorage.js');
+const responder = require('../bot/responder.js')(store);
 const deployObserver = require('../bot/deployObserver.js');
 const fse = require('../promised-file-system.js');
 const remoteRepoDir = 'remoteRepo';
@@ -45,24 +46,24 @@ describe('the bot', function() {
             this.userToken = 'robh';
             this.send = sinon.spy();
             return git.initAtLocation(repoDir, `file://${path.resolve(remoteRepoDir)}`).then(git => {
-                this.deployObserver = deployObserver(this.send, git);
+                this.deployObserver = deployObserver(this.send, git, store);
             });
         });
 
         afterEach(function() {
-            messaging.clear();
+            store.clear();
             return fse.removeDir(repoDir); 
         });
 
         it('asking jibberish responds negatively', function() {
-            const response = messaging.handleMessage('user1', 'this is a load of rubbish');
+            const response = responder.handleMessage('user1', 'this is a load of rubbish');
             expect(response).to.be.an.instanceof(messages.DoNotUnderstandMessage);
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
             it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
                 const partialCommit = this.commits[8].substring(0, 7);
-                const response = messaging.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`);
+                const response = responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`);
                 expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
                 expect(response.commmitRequested).to.be.equal(partialCommit);
             });
@@ -70,7 +71,7 @@ describe('the bot', function() {
             ['ci', 'qa'].forEach(function(environment) {
                 describe(`and ${userToken} asks me to remind them when a commit is deployed to ${environment}`, function() {
                     beforeEach(function() {
-                        this.response = messaging.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`);
+                        this.response = responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`);
                     });
 
                     it('the bot responds affirmatively', function() {

@@ -1,5 +1,6 @@
 const Botkit = require('botkit');
-const messaging = require('./bot/responder.js');
+const store = require('./bot/inMemoryRequestStorage.js');
+const responder = require('./bot/responder.js')(store);
 const deployObserver = require('./bot/deployObserver.js');
 const git = require('./bot/git.js');
 const express = require('express');
@@ -35,7 +36,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         };
 
         controller.on('direct_message',function(bot,message) {
-            const response = messaging.handleMessage(message.channel, message.text);
+            const response = responder.handleMessage(message.channel, message.text);
             bot.reply(message, response.getText());
         });
 
@@ -44,7 +45,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         app.post('/', function(req, res) {
             console.log('received', req.body);
-            deployObserver(send, gitObj)
+            deployObserver(send, gitObj, store)
                 .notify(req.body.environment, req.body.commitHash)
                 .then(() => res.sendStatus(200))
                 .catch(() => res.sendStatus(500));
