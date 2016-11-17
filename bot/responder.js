@@ -10,15 +10,14 @@ module.exports = function(store){
                 const commitHash = result[1];
                 const environment = result[2];
                 if((/[0-9a-f]{40}/).exec(commitHash)) {
-                    store.addRequest({
+                    return store.addRequest({
                         userToken, 
                         commitHash,
                         environment
-                    });
-                    return new messages.ConfirmationMessage();
-                } else return new messages.CommitNotRecognisedMessage(commitHash);
+                    }).then(() => new messages.ConfirmationMessage());
+                } else return Promise.resolve(new messages.CommitNotRecognisedMessage(commitHash));
             }
-            else return new messages.DoNotUnderstandMessage();
+            else return Promise.resolve(new messages.DoNotUnderstandMessage());
         }
     };
 };

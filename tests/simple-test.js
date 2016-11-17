@@ -56,22 +56,25 @@ describe('the bot', function() {
         });
 
         it('asking jibberish responds negatively', function() {
-            const response = responder.handleMessage('user1', 'this is a load of rubbish');
-            expect(response).to.be.an.instanceof(messages.DoNotUnderstandMessage);
+            return responder.handleMessage('user1', 'this is a load of rubbish')
+                .then(response => expect(response).to.be.an.instanceof(messages.DoNotUnderstandMessage));
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
             it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
                 const partialCommit = this.commits[8].substring(0, 7);
-                const response = responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`);
-                expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
-                expect(response.commmitRequested).to.be.equal(partialCommit);
+                return responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`)
+                    .then(response => {
+                        expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
+                        expect(response.commmitRequested).to.be.equal(partialCommit);
+                    });
             });
 
             ['ci', 'qa'].forEach(function(environment) {
                 describe(`and ${userToken} asks me to remind them when a commit is deployed to ${environment}`, function() {
                     beforeEach(function() {
-                        this.response = responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`);
+                        return responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`)
+                            .then(response => this.response = response);
                     });
 
                     it('the bot responds affirmatively', function() {
