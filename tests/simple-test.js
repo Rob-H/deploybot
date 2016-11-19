@@ -31,9 +31,9 @@ describe('the bot', function() {
                 .then((repo) => {
                     this.commits  = new Array(10);
 
-                    return new Array(10).fill(() => repo.emptyCommit()).reduce((prev, curr, index) => {
+                    return new Array(10).fill((message) => repo.emptyCommit(message)).reduce((prev, curr, index) => {
                         return prev.then(() => {
-                           return curr().then((commit) => this.commits[index] = commit.toString());
+                           return curr(`commit ${index}`).then((commit) => this.commits[index] = commit.toString());
                         });
                     }, Promise.resolve(null));
                 });
@@ -141,7 +141,7 @@ describe('the bot', function() {
                     describe(`when a new remote commit is deployed to ${environment}`, function() {
                         beforeEach(function() {
                             return this.repo
-                            .emptyCommit()
+                            .emptyCommit('a new commit')
                             .then((commit) => this.deployObserver.notify(environment, commit));
                         });
 

@@ -11,7 +11,7 @@ class GitRepository {
         this.count = 0;
     }
 
-    emptyCommit() {
+    emptyCommit(message) {
         let index, treeoid;
         return this.nodegitRepo.refreshIndex()
             .then((idx) => index = idx)
@@ -24,7 +24,7 @@ class GitRepository {
                 'HEAD',
                 sig, 
                 sig, 
-                "an empty commit", 
+                message, 
                 treeoid,
                 [parent]
             ))
