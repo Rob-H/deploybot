@@ -52,8 +52,7 @@ describe('the bot', function() {
         });
 
         afterEach(function() {
-            store.clear();
-            return fse.removeDir(repoDir); 
+            return store.clear().then(() => fse.removeDir(repoDir));
         });
 
         it('asking jibberish responds negatively', function() {
@@ -93,7 +92,7 @@ describe('the bot', function() {
                     });
 
                     it('when that commit is deployed to beta', function() {
-                        this.deployObserver.notify('beta', this.commits[8])
+                        return this.deployObserver.notify('beta', this.commits[8])
                             .then(() => expect(this.send.called).to.be.false);
                     });
 
