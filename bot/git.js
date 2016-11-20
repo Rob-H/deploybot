@@ -35,6 +35,10 @@ function getRepoObj(creds) {
             hasBeenDeployed: (targetCommit, deployedCommit) => {
                 return nodegit.Merge.base(repo, targetCommit, deployedCommit)
                     .then(oid => oid.toString() === targetCommit);
+            }, 
+            findCommit: (fullCommitHash) => {
+                return repo.getCommit(fullCommitHash)
+                    .then(commit => ({ hash: commit.toString(), message: commit.message()}));
             }   
         };
     }

@@ -26,11 +26,16 @@ class DoNotUnderstandMessage extends Message {
 }
 
 class CommitDeployedMessage extends Message {
-    constructor(commitHash, environment) {
+    constructor(commitHash, commitMessage, environment) {
         super();
         this.commitHash = commitHash;
+        this.commitMessage = commitMessage;
         this.environment = environment
-        this.wordings = [() => `${this.commitHash} has just been deployed to ${this.environment}`];
+        this.wordings = [
+            () => `${this.commitHash} has just been deployed to ${this.environment}`
+                + '\nCommit Message:'
+                + `\n${this.commitMessage}`
+        ];
     }
 }
 

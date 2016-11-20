@@ -1,4 +1,5 @@
 'use strict';
+const util = require('util');
 const chai = require('chai');
 const expect = chai.expect;
 const sinon = require('sinon');
@@ -8,19 +9,33 @@ const git = require('../bot/git.js');
 const messages = require('../bot/messages.js');
 const storePath = path.resolve('test.db');
 const store = require('../bot/nedbPersistentStorage.js')(storePath);
-const responder = require('../bot/responder.js')(store);
+const responder = require('../bot/responder.js');
 const deployObserver = require('../bot/deployObserver.js');
 const fse = require('../promised-file-system.js');
 const remoteRepoDir = 'remoteRepo';
 const repoDir = 'repoDir';
 
-function assertCommitNotificationSent(send, userToken, commitHash, environment) {
-    expect(send.calledOnce).to.be.true;
-    expect(send.getCall(0).args[0]).to.be.equal(userToken);
-    const message = send.getCall(0).args[1];
-    expect(message).to.be.an.instanceof(messages.CommitDeployedMessage);
-    expect(message.commitHash).to.be.equal(commitHash);
-    expect(message.environment).to.be.equal(environment);
+function print(expected) {
+    return util.inspect(expected, false, null);    
+}
+function assertCommitNotificationSent(send, expectedCalls) {
+    expect(send.callCount).to.be.equal(expectedCalls.length);
+    const actualCalls = [];
+    for(let i = 0; i < send.callCount; ++i) {
+        actualCalls.push(send.getCall(i)); 
+    }
+    for(let i = 0; i < expectedCalls.length; ++i) {
+        const expected = expectedCalls[i];
+        const anyCallMatches = actualCalls.some((actual) => {
+            const message = actual.args[1];
+            return actual.args[0] === expected.userToken &&
+                message instanceof messages.CommitDeployedMessage &&
+                message.commitHash === expected.commitHash &&
+                message.commitMessage === expected.commitMessage &&
+                message.environment === expected.environment;
+        })
+        expect(anyCallMatches, `message ${i} not sent:\n ${print(expected)}\nnot found in:\n ${print(actualCalls.map(x=>x.args))}`).to.be.true;
+    }
 }
 
 describe('the bot', function() {
@@ -47,6 +62,7 @@ describe('the bot', function() {
             this.userToken = 'robh';
             this.send = sinon.spy();
             return git.initAtLocation(repoDir, `file://${path.resolve(remoteRepoDir)}`).then(git => {
+                this.responder = responder(git, store);
                 this.deployObserver = deployObserver(this.send, git, store);
             });
         });
@@ -56,14 +72,14 @@ describe('the bot', function() {
         });
 
         it('asking jibberish responds negatively', function() {
-            return responder.handleMessage('user1', 'this is a load of rubbish')
+            return this.responder.handleMessage('user1', 'this is a load of rubbish')
                 .then(response => expect(response).to.be.an.instanceof(messages.DoNotUnderstandMessage));
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
             it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
                 const partialCommit = this.commits[8].substring(0, 7);
-                return responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`)
+                return this.responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`)
                     .then(response => {
                         expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
                         expect(response.commmitRequested).to.be.equal(partialCommit);
@@ -73,7 +89,7 @@ describe('the bot', function() {
             ['ci', 'qa'].forEach(function(environment) {
                 describe(`and ${userToken} asks me to remind them when a commit is deployed to ${environment}`, function() {
                     beforeEach(function() {
-                        return responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`)
+                        return this.responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`)
                             .then(response => this.response = response);
                     });
 
@@ -102,7 +118,8 @@ describe('the bot', function() {
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            assertCommitNotificationSent(this.send, userToken, this.commits[8], environment);
+                            assertCommitNotificationSent.call(this, this.send, 
+                                        [ { userToken, commitHash: this.commits[8], commitMessage: 'commit 8', environment } ]);
                         });
 
                         describe(`when that commit is deployed to ${environment} again`, function() {
@@ -123,7 +140,8 @@ describe('the bot', function() {
                         });
 
                         it(`sends a message to the ${userToken}`, function() {
-                            assertCommitNotificationSent(this.send, userToken, this.commits[8], environment);
+                            assertCommitNotificationSent.call(this, this.send, 
+                                        [ { userToken, commitHash: this.commits[8], commitMessage: 'commit 8', environment } ]);
                         });
 
                         describe(`when that commit is deployed to ${environment} again`, function() {
@@ -138,15 +156,29 @@ describe('the bot', function() {
                         });
                     });
 
-                    describe(`when a new remote commit is deployed to ${environment}`, function() {
+                    describe('when a new remote commit is added', function() {
                         beforeEach(function() {
                             return this.repo
                             .emptyCommit('a new commit')
-                            .then((commit) => this.deployObserver.notify(environment, commit));
+                            .then(commit => this.newCommit = commit);
                         });
 
-                        it(`sends a message to the ${userToken}`, function() {
-                            assertCommitNotificationSent(this.send, userToken, this.commits[8], environment);
+                        describe(`and ${userToken} asks me to remind them when the new commit is deployed to ${environment}`, function() {
+                            beforeEach(function() {
+                                return this.responder.handleMessage(userToken, `remind me when ${this.newCommit} is deployed to ${environment}`)
+                            });
+
+                            describe(`and the new commit is deployed to ${environment}`, function () {
+                                beforeEach(function() {
+                                    return this.deployObserver.notify(environment, this.newCommit);
+                                });
+                                it(`sends messages to the ${userToken}`, function() {
+                                    assertCommitNotificationSent.call(this, this.send, 
+                                        [ { userToken, commitHash: this.commits[8], commitMessage: 'commit 8', environment },
+                                          { userToken, commitHash: this.newCommit.toString(), commitMessage: 'a new commit', environment } ]
+                                    );
+                                });
+                            });
                         });
                     });
                 });

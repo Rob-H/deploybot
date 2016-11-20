@@ -2,7 +2,7 @@
 const messages = require('./messages.js');
 const store = require('./inMemoryRequestStorage.js');
 
-module.exports = function(store){
+module.exports = function(git, store){
     return {
         handleMessage: (userToken, message) => {
             let result;
@@ -10,11 +10,14 @@ module.exports = function(store){
                 const commitHash = result[1];
                 const environment = result[2];
                 if((/[0-9a-f]{40}/).exec(commitHash)) {
-                    return store.addRequest({
-                        userToken, 
-                        commitHash,
-                        environment
-                    }).then(() => new messages.ConfirmationMessage());
+                    return git.fetch()
+                        .then(() => git.findCommit(commitHash))
+                        .then((commit) => store.addRequest({
+                            userToken, 
+                            commitHash,
+                            environment,
+                            commitMessage: commit.message
+                        })).then(() => new messages.ConfirmationMessage());
                 } else return Promise.resolve(new messages.CommitNotRecognisedMessage(commitHash));
             }
             else return Promise.resolve(new messages.DoNotUnderstandMessage());

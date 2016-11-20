@@ -9,7 +9,7 @@ module.exports = function(send, git, store){
                         if(hasBeenDeployed) {
                             send(
                                 request.userToken, 
-                                new messages.CommitDeployedMessage(request.commitHash, environment));
+                                new messages.CommitDeployedMessage(request.commitHash, request.commitMessage, environment));
                                 store.handleRequest(request);
                         }
                         return hasBeenDeployed;

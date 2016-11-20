@@ -32,7 +32,7 @@ module.exports = function(dataFilePath) {
         },
         clear: () => {
             return new Promise((resolve, reject) => {
-                db.remove({}, {}, function(err, numRemoved) {
+                db.remove({}, {multi: true}, function(err, numRemoved) {
                     if(err) reject(err);
                     else resolve(numRemoved);
                 });    

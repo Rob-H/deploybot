@@ -2,9 +2,9 @@ const Botkit = require('botkit');
 const path = require('path');
 const storePath = path.resolve('requests.db');
 const store = require('./bot/nedbPersistentStorage.js')(storePath);
-const responder = require('./bot/responder.js')(store);
-const deployObserver = require('./bot/deployObserver.js');
 const git = require('./bot/git.js');
+const responder = require('./bot/responder.js');
+const deployObserver = require('./bot/deployObserver.js');
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -38,7 +38,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         };
 
         controller.on('direct_message',function(bot,message) {
-            responder.handleMessage(message.channel, message.text)
+            responder(gitObj, store).handleMessage(message.channel, message.text)
                 .then(response => bot.reply(message, response.getText()));
         });
 
