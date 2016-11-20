@@ -81,8 +81,17 @@ describe('the bot', function() {
                 const partialCommit = this.commits[8].substring(0, 7);
                 return this.responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`)
                     .then(response => {
-                        expect(response).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
+                        expect(response, `expected CommitNotRecognisedMessage, but was:\n${print(response)}`).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
                         expect(response.commmitRequested).to.be.equal(partialCommit);
+                    });
+            });
+
+            it(`and ${userToken} asks me to remind them when a commit that doesn't exist is deployed`, function() {
+                const notPresentCommit = this.commits[8].split('').reverse().join('');
+                return this.responder.handleMessage(userToken, `remind me when ${notPresentCommit} is deployed to beta`)
+                    .then(response => {
+                        expect(response).to.be.an.instanceof(messages.CommitNotFoundMessage);
+                        expect(response.commmitRequested).to.be.equal(notPresentCommit);
                     });
             });
 
@@ -95,6 +104,9 @@ describe('the bot', function() {
 
                     it('the bot responds affirmatively', function() {
                         expect(this.response).to.be.an.instanceof(messages.ConfirmationMessage);
+                        expect(this.response.commitHash).to.be.equal(this.commits[8]);
+                        expect(this.response.commitMessage).to.be.equal('commit 8');
+                        expect(this.response.environment).to.be.equal(environment);
                     });
 
                     describe('when a commit before that is deployed', function() {

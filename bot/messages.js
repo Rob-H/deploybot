@@ -8,9 +8,16 @@ class Message {
 }
 
 class ConfirmationMessage extends Message {
-    constructor() {
+    constructor(commitHash, commitMessage, environment) {
         super();
-        this.wordings = [() => 'yeah ok'];
+        this.commitHash = commitHash;
+        this.commitMessage = commitMessage;
+        this.environment = environment
+        this.wordings = [
+            () => `I found commit ${this.commitHash}` + 
+                `\nmessage:\n ${this.commitMessage}` + 
+                `I will let you know when it is deployed to ${this.environment}`
+        ];
     }
 }
 
@@ -39,6 +46,14 @@ class CommitDeployedMessage extends Message {
     }
 }
 
+class CommitNotFoundMessage extends Message {
+    constructor(commmitRequested) {
+        super();
+        this.commmitRequested = commmitRequested;
+        this.wordings = [() => `sorry I could not find "${this.commmitRequested}" in the repositiory, are you sure it's been pushed?`];
+    }
+}
+
 class CommitNotRecognisedMessage extends Message {
     constructor(commmitRequested) {
         super();
@@ -51,5 +66,6 @@ module.exports = {
     ConfirmationMessage,
     DoNotUnderstandMessage,
     CommitDeployedMessage,
-    CommitNotRecognisedMessage
+    CommitNotRecognisedMessage,
+    CommitNotFoundMessage
 };

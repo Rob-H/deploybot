@@ -17,7 +17,13 @@ module.exports = function(git, store){
                             commitHash,
                             environment,
                             commitMessage: commit.message
-                        })).then(() => new messages.ConfirmationMessage());
+                        }))
+                        .then((request) => new messages.ConfirmationMessage(request.commitHash, request.commitMessage, request.environment))
+                        .catch((err) => {
+                            if(err.message.includes('Object not found')) {
+                                return new messages.CommitNotFoundMessage(commitHash)
+                            } else throw err;
+                        });
                 } else return Promise.resolve(new messages.CommitNotRecognisedMessage(commitHash));
             }
             else return Promise.resolve(new messages.DoNotUnderstandMessage());
