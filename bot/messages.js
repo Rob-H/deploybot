@@ -15,8 +15,8 @@ class ConfirmationMessage extends Message {
         this.environment = environment
         this.wordings = [
             () => `I found commit ${this.commitHash}` + 
-                `\nmessage:\n ${this.commitMessage}` + 
-                `I will let you know when it is deployed to ${this.environment}`
+                `\nI will let you know when it is deployed to ${this.environment}` +
+                `\nCommit Message:\n${this.commitMessage}` 
         ];
     }
 }
@@ -40,11 +40,11 @@ class CommitDeployedMessage extends Message {
         this.environment = environment
         this.wordings = [
             () => `${this.commitHash} has just been deployed to ${this.environment}`
-                + '\nCommit Message:'
-                + `\n${this.commitMessage}`
+                + '\nCommit Message:\n'+ this.commitMessage
         ];
     }
 }
+
 
 class CommitNotFoundMessage extends Message {
     constructor(commmitRequested) {
