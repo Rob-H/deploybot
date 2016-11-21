@@ -184,11 +184,22 @@ describe('the bot', function() {
                                 beforeEach(function() {
                                     return this.deployObserver.notify(environment, this.newCommit);
                                 });
+
                                 it(`sends messages to the ${userToken}`, function() {
                                     assertCommitNotificationSent.call(this, this.send, 
-                                        [ { userToken, commitHash: this.commits[8], commitMessage: 'commit 8', environment },
-                                          { userToken, commitHash: this.newCommit.toString(), commitMessage: 'a new commit', environment } ]
+                                         [ { userToken, commitHash: this.commits[8], commitMessage: 'commit 8', environment },
+                                           { userToken, commitHash: this.newCommit.toString(), commitMessage: 'a new commit', environment } ]
                                     );
+                                });
+
+                                describe(`and the new commit is deployed to ${environment} again`, function () {
+                                    beforeEach(function() {
+                                        return this.deployObserver.notify(environment, this.newCommit);
+                                    });
+
+                                    it('it does not send any more messages', function() {
+                                        expect(this.send.callCount).to.be.equal(2);
+                                    });
                                 });
                             });
                         });
