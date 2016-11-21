@@ -19,6 +19,13 @@ if(!process.env.gitRepoUrl) {
     process.exit(1);
 }
 
+if(!process.env.environments) {
+    console.log('Error: Specify comma separated environment list in environment');
+    process.exit(1);
+}
+
+const environments = process.env.environments.split(',').map(x => x.trim());
+
 git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.env.gitUserName, process.env.gitPassword))
     .then(gitObj => {
         const controller = Botkit.slackbot({debug: false });
@@ -38,7 +45,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         };
 
         controller.on('direct_message',function(bot,message) {
-            responder(gitObj, store).handleMessage(message.channel, message.text)
+            responder(gitObj, store, environments).handleMessage(message.channel, message.text)
                 .then(response => bot.reply(message, response.getText()));
         });
 

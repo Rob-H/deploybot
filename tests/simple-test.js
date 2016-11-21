@@ -62,8 +62,9 @@ describe('the bot', function() {
             this.userToken = 'robh';
             this.send = sinon.spy();
             return git.initAtLocation(repoDir, `file://${path.resolve(remoteRepoDir)}`).then(git => {
-                this.responder = responder(git, store);
-                this.deployObserver = deployObserver(this.send, git, store);
+                this.environments = ['ci', 'qa', 'beta'];
+                this.responder = responder(git, store, this.environments);
+                this.deployObserver = deployObserver(this.send, git, store, this.environments);
             });
         });
 
@@ -77,7 +78,7 @@ describe('the bot', function() {
         });
 
         ['user1', 'user2'].forEach(function(userToken) {
-            it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed`, function() {
+            it(`and ${userToken} asks me to remind them when something other than a full commit hash is deployed it says it can't find it`, function() {
                 const partialCommit = this.commits[8].substring(0, 7);
                 return this.responder.handleMessage(userToken, `remind me when ${partialCommit} is deployed to beta`)
                     .then(response => {
@@ -86,7 +87,7 @@ describe('the bot', function() {
                     });
             });
 
-            it(`and ${userToken} asks me to remind them when a commit that doesn't exist is deployed`, function() {
+            it(`and ${userToken} asks me to remind them when a commit that doesn't exist is deployed it says it can't find it`, function() {
                 const notPresentCommit = this.commits[8].split('').reverse().join('');
                 return this.responder.handleMessage(userToken, `remind me when ${notPresentCommit} is deployed to beta`)
                     .then(response => {
@@ -94,8 +95,34 @@ describe('the bot', function() {
                         expect(response.commmitRequested).to.be.equal(notPresentCommit);
                     });
             });
+             
+            it(`and ${userToken} asks me to remind them when a commit is deployed to an environment I don't know about it says it can't find it`, function() {
+                const bogusEnvironment = 'blahblah'
+                return this.responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${bogusEnvironment}`)
+                    .then(response => {
+                        expect(response).to.be.an.instanceof(messages.EnvironmentNotRecognisedMessage);
+                        expect(response.environmentRequested).to.be.equal(bogusEnvironment);
+                        expect(response.availableEnvironments).to.be.equal(this.environments);
+                    });
+            });
 
             ['ci', 'qa'].forEach(function(environment) {
+                const upperCaseEnvironment = environment.toUpperCase();
+
+                describe(`and ${userToken} asks me to remind them when a commit is deployed to ${upperCaseEnvironment}`, function() {
+                    beforeEach(function() {
+                        return this.responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${upperCaseEnvironment}`)
+                            .then(response => this.response = response);
+                    });
+
+                    it('the bot responds affirmatively', function() {
+                        expect(this.response).to.be.an.instanceof(messages.ConfirmationMessage);
+                        expect(this.response.commitHash).to.be.equal(this.commits[8]);
+                        expect(this.response.commitMessage).to.be.equal('commit 8');
+                        expect(this.response.environment).to.be.equal(environment);
+                    });
+                });
+
                 describe(`and ${userToken} asks me to remind them when a commit is deployed to ${environment}`, function() {
                     beforeEach(function() {
                         return this.responder.handleMessage(userToken, `remind me when ${this.commits[8]} is deployed to ${environment}`)

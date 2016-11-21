@@ -2,14 +2,23 @@
 const messages = require('./messages.js');
 const store = require('./inMemoryRequestStorage.js');
 
-module.exports = function(git, store){
+module.exports = function(git, store, environments){
+    function findEnvironment(environment) {
+        const index = environments.map(x => x.toLowerCase()).indexOf(environment.toLowerCase())
+        if(index === -1) return null;
+        else return environments[index];
+    }
     return {
         handleMessage: (userToken, message) => {
             let result;
             if(result = /^remind me when (.*) is deployed to (.*)$/.exec(message)){
                 const commitHash = result[1];
-                const environment = result[2];
-                if((/[0-9a-f]{40}/).exec(commitHash)) {
+                const requestedEnvironment = result[2];
+                const environment = findEnvironment(requestedEnvironment);
+                if(!environment){
+                    return Promise.resolve(new messages.EnvironmentNotRecognisedMessage(requestedEnvironment, environments));
+                }
+                else if((/[0-9a-f]{40}/).exec(commitHash)) {
                     return git.fetch()
                         .then(() => git.findCommit(commitHash))
                         .then((commit) => store.addRequest({

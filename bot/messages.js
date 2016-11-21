@@ -62,10 +62,20 @@ class CommitNotRecognisedMessage extends Message {
     }
 }
 
+class EnvironmentNotRecognisedMessage extends Message {
+    constructor(environmentRequested, availableEnvironments) {
+        super()
+        this.environmentRequested = environmentRequested;
+        this.availableEnvironments = availableEnvironments;
+        this.wordings = [() => `sorry I dodn't recognise "${this.environmentRequested}", I only know about the following environments: ${this.availableEnvironments.join(', ')}`];
+    }
+}
+
 module.exports = {
     ConfirmationMessage,
     DoNotUnderstandMessage,
     CommitDeployedMessage,
     CommitNotRecognisedMessage,
-    CommitNotFoundMessage
+    CommitNotFoundMessage,
+    EnvironmentNotRecognisedMessage
 };
