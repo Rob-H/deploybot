@@ -1,20 +1,16 @@
 'use strict';
 const messages = require('./messages.js');
 const store = require('./inMemoryRequestStorage.js');
+const findEnvironment = require('./findEnvironment.js');
 
 module.exports = function(git, store, environments){
-    function findEnvironment(environment) {
-        const index = environments.map(x => x.toLowerCase()).indexOf(environment.toLowerCase())
-        if(index === -1) return null;
-        else return environments[index];
-    }
     return {
         handleMessage: (userToken, message) => {
             let result;
             if(result = /^remind me when (.*) is deployed to (.*)$/.exec(message)){
                 const commitHash = result[1];
                 const requestedEnvironment = result[2];
-                const environment = findEnvironment(requestedEnvironment);
+                const environment = findEnvironment(environments)(requestedEnvironment);
                 if(!environment){
                     return Promise.resolve(new messages.EnvironmentNotRecognisedMessage(requestedEnvironment, environments));
                 }

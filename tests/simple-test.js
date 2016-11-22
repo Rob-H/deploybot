@@ -2,6 +2,7 @@
 const util = require('util');
 const chai = require('chai');
 const expect = chai.expect;
+const assert = chai.assert;
 const sinon = require('sinon');
 const path = require('path');
 const gitHelpers = require('./helpers/git.js');
@@ -106,6 +107,13 @@ describe('the bot', function() {
                     });
             });
 
+            it('and commit is deployed to environment we do no know about it throws an error', function() {
+                return this.deployObserver.notify('blahblah', this.commits[5]).then(
+                    () => assert.fail(null, null, 'it should have failed to notify'),
+                    err => expect(err.message).to.equal('Unrecognised environment "blahblah"')
+                );
+            });
+
             ['ci', 'qa'].forEach(function(environment) {
                 const upperCaseEnvironment = environment.toUpperCase();
 
@@ -172,6 +180,29 @@ describe('the bot', function() {
                             });
                         });
                     });
+
+                    describe(`when that commit is deployed to ${upperCaseEnvironment}`, function() {
+                        beforeEach(function() {
+                            return this.deployObserver.notify(upperCaseEnvironment, this.commits[8]);
+                        });
+
+                        it(`sends a message to the ${userToken}`, function() {
+                            assertCommitNotificationSent.call(this, this.send, 
+                                        [ { userToken, commitHash: this.commits[8], commitMessage: 'commit 8', environment } ]);
+                        });
+
+                        describe(`when that commit is deployed to ${environment} again`, function() {
+
+                            beforeEach(function() {
+                                return this.deployObserver.notify(environment, this.commits[8]);
+                            });
+
+                            it('does not send them a message', function() {
+                                expect(this.send.calledOnce).to.be.true;
+                            });
+                        });
+                    });
+
 
                     describe(`when a commit after it is deployed to ${environment}`, function() {
                         beforeEach(function() {

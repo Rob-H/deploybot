@@ -54,10 +54,13 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         app.post('/', function(req, res) {
             console.log('received', req.body);
-            deployObserver(send, gitObj, store)
+            deployObserver(send, gitObj, store, environments)
                 .notify(req.body.environment, req.body.commitHash)
-                .then(() => res.sendStatus(200))
-                .catch(() => res.sendStatus(500));
+                .then((messagesSent) => res.status(200).send(`sent ${messagesSent} messages`))
+                .catch((err) => {
+                    if(err.message.includes('Unrecognised environment')) res.status(400).send(err.message);
+                    else res.status(500).send(err.message);
+                });
         });
 
         app.listen(8080, () => console.log(`listening for deployment notifications`));

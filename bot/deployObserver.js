@@ -1,9 +1,11 @@
 'use strict';
 const messages = require('./messages.js');
-module.exports = function(send, git, store){ 
+const findEnvironment = require('./findEnvironment.js');
+
+module.exports = function(send, git, store, environments){ 
     return {
         notify: (environment, commit) => {
-            function checkPending(pending) {
+            function checkPending(pending, environment) {
                 return Promise.all(pending.filter(x => x.environment === environment).map(request => {
                     return git.hasBeenDeployed(request.commitHash, commit).then(hasBeenDeployed => {
                         if(hasBeenDeployed) {
@@ -14,10 +16,11 @@ module.exports = function(send, git, store){
                         }
                         return hasBeenDeployed;
                     });
-                }))
+                })).then(deployArr => deployArr.filter(x => x).length);
             }
-
-            return git.fetch().then(() => store.pending().then(checkPending));
+            let foundEnvironment = findEnvironment(environments)(environment);
+            if(!foundEnvironment) return Promise.reject(new Error(`Unrecognised environment "${environment}"`));
+            else return git.fetch().then(() => store.pending().then((pending) => checkPending(pending, foundEnvironment)));
         }
     };
 };

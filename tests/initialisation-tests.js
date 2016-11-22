@@ -4,6 +4,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const git = require('../bot/git.js');
 const deployObserver = require('../bot/deployObserver.js');
+const store = require('../bot/inMemoryRequestStorage.js');
 const gitHelpers = require('./helpers/git.js');
 const fse = require('../promised-file-system.js');
 const repoDir = 'repoDir';
@@ -43,7 +44,7 @@ describe('when opening a git repo', function() {
                     ourRemoteUrl,
                     git.getCreds('user', 'invalidpassword')
                 );
-            }).then((git) => deployObserver(() => undefined, git))
+            }).then((git) => deployObserver(() => undefined, git, store, ['qa']))
             .then((deployObserver) => deployObserver.notify('qa', 'acommithash'))
             .then(
                 () => assert.fail(null, null, 'it should have rejected the promise'),

@@ -67,7 +67,7 @@ class EnvironmentNotRecognisedMessage extends Message {
         super()
         this.environmentRequested = environmentRequested;
         this.availableEnvironments = availableEnvironments;
-        this.wordings = [() => `sorry I dodn't recognise "${this.environmentRequested}", I only know about the following environments: ${this.availableEnvironments.join(', ')}`];
+        this.wordings = [() => `sorry I didn't recognise "${this.environmentRequested}", I only know about the following environments: ${this.availableEnvironments.join(', ')}`];
     }
 }
 
