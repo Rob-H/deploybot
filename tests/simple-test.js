@@ -88,6 +88,15 @@ describe('the bot', function() {
                     });
             });
 
+            it(`and ${userToken} asks me to remind them when something that is a full commit hash (with extras)  is deployed it says it can't find it`, function() {
+                const commitWithExtra = `deadbeef${this.commits[8]}`;
+                return this.responder.handleMessage(userToken, `remind me when ${commitWithExtra} is deployed to beta`)
+                    .then(response => {
+                        expect(response, `expected CommitNotRecognisedMessage, but was:\n${print(response)}`).to.be.an.instanceof(messages.CommitNotRecognisedMessage);
+                        expect(response.commmitRequested).to.be.equal(commitWithExtra);
+                    });
+            });
+
             it(`and ${userToken} asks me to remind them when a commit that doesn't exist is deployed it says it can't find it`, function() {
                 const notPresentCommit = this.commits[8].split('').reverse().join('');
                 return this.responder.handleMessage(userToken, `remind me when ${notPresentCommit} is deployed to beta`)

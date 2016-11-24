@@ -14,7 +14,7 @@ module.exports = function(git, store, environments){
                 if(!environment){
                     return Promise.resolve(new messages.EnvironmentNotRecognisedMessage(requestedEnvironment, environments));
                 }
-                else if((/[0-9a-f]{40}/).exec(commitHash)) {
+                else if((/^[0-9a-f]{40}$/).exec(commitHash)) {
                     return git.fetch()
                         .then(() => git.findCommit(commitHash))
                         .then((commit) => store.addRequest({
