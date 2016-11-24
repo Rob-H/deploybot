@@ -44,7 +44,11 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         controller.on('direct_message',function(bot,message) {
             responder(gitObj, store, environments).handleMessage(message.channel, message.text)
-                .then(response => bot.reply(message, response));
+                .then(response => bot.reply(message, response))
+                .catch(err => {
+                    console.log(err); 
+                    bot.reply(message, 'sorry something went wrong contact your sysadmin!!');
+                });
         });
 
         const app = express();
