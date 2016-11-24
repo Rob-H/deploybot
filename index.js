@@ -35,10 +35,8 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         }).startRTM();
 
         const send = (user, message) => {
-            bot.say({
-                text: message.getText(),
-                channel: user 
-            }, function(err, response) {
+            message.channel = user;
+            bot.say(message, function(err, response) {
                 if(err) console.log(err); 
                 if(response) console.log(response); 
             });    
@@ -46,7 +44,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         controller.on('direct_message',function(bot,message) {
             responder(gitObj, store, environments).handleMessage(message.channel, message.text)
-                .then(response => bot.reply(message, response.getText()));
+                .then(response => bot.reply(message, response));
         });
 
         const app = express();
