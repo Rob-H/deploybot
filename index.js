@@ -45,19 +45,27 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
 
         const send = (user, message) => {
             message.channel = user;
-            bot.say(message, function(err, response) {
+            bot.say(message, function(err, message) {
                 if(err) log.error(err); 
-                if(response) log.info({response}, 'received response'); 
+                if(message) log.info({message}, 'sent message'); 
             });    
         };
 
         controller.on('direct_message',function(bot,message) {
             log.info({message}, 'recieved message');
             responder(gitObj, store, environments).handleMessage(message.channel, message.text)
-                .then(response => bot.reply(message, response))
-                .catch(err => {
+                .then(response => {
+                    bot.reply(message, response, function(err, message) {
+                        if(err) log.error(err); 
+                        if(message) log.info({message}, 'sent message'); 
+                    });
+                }).catch(err => {
+                    const response = {text: 'sorry something went wrong contact your sysadmin!!', attachments: []};
+                    bot.reply(message, response, function(err, message) {
+                        if(err) log.error(err); 
+                        if(message) log.info({message}, 'sent message'); 
+                    });
                     if(err) log.error(err); 
-                    bot.reply(message, 'sorry something went wrong contact your sysadmin!!');
                 });
         });
 
@@ -65,7 +73,7 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
         app.use(bodyParser.json());
 
         app.post('/', function(req, res) {
-            log.info('received', req.body);
+            log.info('deploy notification received', req.body);
             deployObserver(send, gitObj, store, environments)
                 .notify(req.body.environment, req.body.commitHash)
                 .then((messagesSent) => res.status(200).send(`sent ${messagesSent} messages`))
