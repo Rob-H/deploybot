@@ -1,5 +1,5 @@
 node_modules
 run*
-repository
+repository*
 *.db
 logs
