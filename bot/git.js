@@ -62,11 +62,16 @@ function openRepo(repoPath) {
 }
 
 function cleanAndClone(repoPath, repoUrl, creds) {
+    console.log(`cloning ${repoUrl} in to ${repoPath}`);
     return fse.ensureEmptyDir(repoPath)
         .then(() =>  nodegit.Clone(repoUrl, repoPath, {
             fetchOpts: {
                 callbacks: {
-                    credentials: provideCredsOnce(creds)
+                    credentials: provideCredsOnce(creds),
+                    transferProgress: function(transferProgress) {
+                        process.stdout.write(`\rtransferred ${transferProgress.receivedObjects()}/${transferProgress.totalObjects()} objects`);
+                    }
+
                 }
             }
         }))
