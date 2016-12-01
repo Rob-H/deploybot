@@ -35,7 +35,7 @@ if(!process.env.environments) {
 
 const environments = process.env.environments.split(',').map(x => x.trim());
 
-git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.env.gitUserName, process.env.gitPassword))
+git.initAtLocation(process.env.repoDir ||'repository', process.env.gitRepoUrl, git.getCreds(process.env.gitUserName, process.env.gitPassword))
     .then(gitObj => {
         const controller = Botkit.slackbot({debug: false });
 
