@@ -51,15 +51,35 @@ git.initAtLocation(process.env.repoDir ||'repository', process.env.gitRepoUrl, g
             });    
         };
 
+        const getUserNameFromChannelId = (channelId) => {
+            return new Promise((resolve, reject) => {
+                bot.api.users.list({}, (err, response) => {
+                    if(err) log.error(err);
+                    if(response.hasOwnProperty('members') && response.ok) {
+                       var user = response.members.find(user => user.id === channelId);
+                       if(user) {
+                           resolve(user.name);
+                           return;
+                       }
+                    }
+                    resolve(`unknown user (${channelId})`);
+                });
+            }); 
+        };
+
         controller.on('direct_message',function(bot,message) {
-            log.info({message}, 'recieved message');
-            responder(gitObj, store, environments).handleMessage(message.channel, message.text)
-                .then(response => {
-                    bot.reply(message, response, function(err, message) {
-                        if(err) log.error(err); 
-                        if(message) log.info({message}, 'sent message'); 
-                    });
-                }).catch(err => {
+            getUserNameFromChannelId(message.user)
+                .then(username => {
+                    log.info({message}, `recieved message from "${username}"`);
+                    return responder(gitObj, store, environments).handleMessage(message.channel, message.text)
+                        .then(response => {
+                            bot.reply(message, response, function(err, message) {
+                                if(err) log.error(err); 
+                                if(message) log.info({message}, 'sent message'); 
+                            });
+                        });
+                })
+                .catch(err => {
                     const response = {text: 'sorry something went wrong contact your sysadmin!!', attachments: []};
                     bot.reply(message, response, function(err, message) {
                         if(err) log.error(err); 
