@@ -85,7 +85,11 @@ git.initAtLocation('repository', process.env.gitRepoUrl, git.getCreds(process.en
                     }
                 });
         });
-
+ 
+        app.use(function(err, req, res, next) {
+            log.error(err); // this catches the error!!
+            next(err);
+        });
         app.listen(8080, () => log.info(`listening for deployment notifications`));
 
     })
