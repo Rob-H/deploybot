@@ -1,6 +1,9 @@
 'use strict';
 
 class Message {
+    constructor() {
+        this.attachments = [];
+    }
     get text() {
         const index = Math.floor(Math.random() * this.wordings.length)
         return this.wordings[index]();
