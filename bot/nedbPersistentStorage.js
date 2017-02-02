@@ -26,7 +26,7 @@ module.exports = function(dataFilePath) {
             return new Promise((resolve, reject) => {
                 db.update({ _id: request._id }, { $set: { notifiedOn: 2} }, {}, (err, requests) => {
                     if(err) reject(err);
-                    else resolve(request);
+                    else resolve(requests);
                 }); 
             });
         },

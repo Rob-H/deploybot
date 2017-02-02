@@ -13,7 +13,7 @@ module.exports = {
         if(index > -1) {
             requests.splice(index, 1);
         }
-        return Promise.resolve(request);
+        return Promise.resolve([request]);
     },
     clear: () => {
         requests = [];

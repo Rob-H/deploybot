@@ -62,7 +62,7 @@ function openRepo(repoPath) {
 }
 
 function cleanAndClone(repoPath, repoUrl, creds) {
-    console.log(`cloning ${repoUrl} in to ${repoPath}`);
+    process.stdout.write(`cloning ${repoUrl} in to ${repoPath}\n`);
     return fse.ensureEmptyDir(repoPath)
         .then(() =>  nodegit.Clone(repoUrl, repoPath, {
             fetchOpts: {

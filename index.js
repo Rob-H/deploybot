@@ -1,3 +1,4 @@
+/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 const Botkit = require('botkit');
 const path = require('path');
 const storePath = path.resolve('requests.db');
@@ -19,17 +20,17 @@ const log = bunyan.createLogger({
 });
 
 if (!process.env.slackToken) {
-    console.log('Error: Specify slackToken in environment');
+    console.error('Error: Specify slackToken in environment');
     process.exit(1);
 }
 
 if(!process.env.gitRepoUrl) {
-    console.log('Error: Specify git repo url in environment');
+    console.error('Error: Specify git repo url in environment');
     process.exit(1);
 }
 
 if(!process.env.environments) {
-    console.log('Error: Specify comma separated environment list in environment');
+    console.error('Error: Specify comma separated environment list in environment');
     process.exit(1);
 }
 
@@ -52,7 +53,7 @@ git.initAtLocation(process.env.repoDir ||'repository', process.env.gitRepoUrl, g
         };
 
         const getUserNameFromChannelId = (channelId) => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => { //no reject because it's not the end of the world
                 bot.api.users.list({}, (err, response) => {
                     if(err) log.error(err);
                     if(response.hasOwnProperty('members') && response.ok) {
