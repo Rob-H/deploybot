@@ -4,8 +4,8 @@
   "description": "A slack bot to remind you when a commit gets to different environments",
   "main": "index.js",
   "scripts": {
-    "pretest": "./node_modules/.bin/eslint .",
-    "test": "node node_modules/mocha/bin/mocha tests --recursive",
+    "pretest": "node ./node_modules/.bin/eslint .",
+    "test": "node node_modules/.bin/istanbul cover node_modules/.bin/_mocha tests --recursive",
     "watch": "node node_modules/mocha/bin/mocha tests --recursive --watch"
   },
   "keywords": [
@@ -24,6 +24,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^3.14.1",
+    "istanbul": "^0.4.5",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6"
   }
