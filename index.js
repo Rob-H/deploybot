@@ -9,39 +9,47 @@ const deployObserver = require('./bot/deployObserver.js');
 const express = require('express');
 const bodyParser = require('body-parser');
 const bunyan = require('bunyan');
+const nconf = require('nconf');
+
+const config = nconf.argv()
+                    .env()
+                    .file('config.json')
+                    .defaults({
+                        logFolder: 'logs' 
+                    });
 
 const log = bunyan.createLogger({
     name: 'deploy-bot',
     streams: [{
         type: 'rotating-file',
-        path: 'logs/deploy-bot.log',
+        path: `${config.get('logFolder')}/deploy-bot.log`,
         period: '1d',
     }]
 });
 
-if (!process.env.slackToken) {
-    console.error('Error: Specify slackToken in environment');
+if (!config.get('slackToken')) {
+    console.error('Error: slackToken not specified');
     process.exit(1);
 }
 
-if(!process.env.gitRepoUrl) {
-    console.error('Error: Specify git repo url in environment');
+if(!config.get('gitRepoUrl')) {
+    console.error('Error: git repo url not specified');
     process.exit(1);
 }
 
-if(!process.env.environments) {
-    console.error('Error: Specify comma separated environment list in environment');
+if(!config.get('environments')) {
+    console.error('Error: comma separated environment list not specified');
     process.exit(1);
 }
 
-const environments = process.env.environments.split(',').map(x => x.trim());
-
-git.initAtLocation(process.env.repoDir ||'repository', process.env.gitRepoUrl, git.getCreds(process.env.gitUserName, process.env.gitPassword))
+const environments = process.get('environments').split(',').map(x => x.trim());
+const gitSettings = process.get('git');
+git.initAtLocation(gitSettings.repoDir ||'repository', gitSettings.repoUrl, git.getCreds(gitSettings.userName, gitSettings.password))
     .then(gitObj => {
         const controller = Botkit.slackbot({debug: false });
 
         const bot = controller.spawn({
-            token: process.env.slackToken    
+            token: config.get('slackToken')
         }).startRTM();
 
         const send = (user, message) => {
