@@ -16,7 +16,8 @@ const config = nconf.argv()
                     .defaults({
                         logFolder: 'logs',
                         storePath: 'requests.db',
-                        repoDir: 'repository'
+                        repoDir: 'repository',
+                        port: 8080
                     });
 
 const log = bunyan.createLogger({
@@ -122,7 +123,7 @@ git.initAtLocation(gitSettings.repoDir, gitSettings.repoUrl, git.getCreds(gitSet
             log.error(err); // this catches the error!!
             next(err);
         });
-        app.listen(8080, () => log.info(`listening for deployment notifications`));
+        app.listen(config.get('port'), () => log.info(`listening for deployment notifications`));
 
     })
     .catch(err => log.error(err));
