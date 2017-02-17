@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 const Botkit = require('botkit');
 const path = require('path');
@@ -16,7 +17,7 @@ if (!config.slackToken) {
     process.exit(1);
 }
 
-if(!config.git.repoUrl) {
+if(!(config.git && config.git.repoUrl)) {
     console.error('Error: git repo url not specified');
     process.exit(1);
 }

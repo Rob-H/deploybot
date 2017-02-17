@@ -7,7 +7,7 @@ const config = nconf.argv()
                     .defaults({
                         logFolder: 'logs',
                         storePath: 'requests.db',
-                        repoDir: 'repository',
+                        git: {repoDir: 'repository'},
                         port: 8080
                     });
 

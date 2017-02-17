@@ -28,5 +28,9 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "deploybot": "index.js"
   }
 }
