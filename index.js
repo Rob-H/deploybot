@@ -8,54 +8,44 @@ const deployObserver = require('./bot/deployObserver.js');
 const express = require('express');
 const bodyParser = require('body-parser');
 const bunyan = require('bunyan');
-const nconf = require('nconf');
 const fs = require('./promised-file-system.js');
+const config = require('./bot/config.js');
 
-const config = nconf.argv()
-                    .env()
-                    .file('config.json')
-                    .defaults({
-                        logFolder: 'logs',
-                        storePath: 'requests.db',
-                        repoDir: 'repository',
-                        port: 8080
-                    });
-
-if (!config.get('slackToken')) {
+if (!config.slackToken) {
     console.error('Error: slackToken not specified');
     process.exit(1);
 }
 
-if(!config.get('git:repoUrl')) {
+if(!config.git.repoUrl) {
     console.error('Error: git repo url not specified');
     process.exit(1);
 }
 
-if(!config.get('environments')) {
+if(!config.environments) {
     console.error('Error: comma separated environment list not specified');
     process.exit(1);
 }
 
-fs.ensureDir(config.get('logFolder')).then(() => {
+fs.ensureDir(config.logFolder).then(() => {
     const log = bunyan.createLogger({
         name: 'deploy-bot',
         streams: [{
             type: 'rotating-file',
-            path: `${config.get('logFolder')}/deploy-bot.log`,
+            path: `${config.logFolder}/deploy-bot.log`,
             period: '1d',
         }]
     });
 
-    const store = storeFactory(path.resolve(config.get('storePath')));
+    const store = storeFactory(path.resolve(config.storePath));
 
-    const environments = config.get('environments').split(',').map(x => x.trim());
-    const gitSettings = config.get('git');
+    const environments = config.environments.split(',').map(x => x.trim());
+    const gitSettings = config.git;
     git.initAtLocation(gitSettings.repoDir, gitSettings.repoUrl, git.getCreds(gitSettings.userName, gitSettings.password))
         .then(gitObj => {
             const controller = Botkit.slackbot({debug: false });
 
             const bot = controller.spawn({
-                token: config.get('slackToken')
+                token: config.slackToken
             }).startRTM();
 
             const send = (user, message) => {
@@ -125,7 +115,7 @@ fs.ensureDir(config.get('logFolder')).then(() => {
                 log.error(err); // this catches the error!!
                 next(err);
             });
-            app.listen(config.get('port'), () => log.info(`listening for deployment notifications`));
+            app.listen(config.port, () => log.info(`listening for deployment notifications`));
 
         })
         .catch(err => log.error(err));
