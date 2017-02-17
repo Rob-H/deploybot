@@ -3,4 +3,4 @@ coverage
 run*
 repository*
 *.db
-logs
+*logs
