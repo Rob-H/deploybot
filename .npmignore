@@ -1,1 +1,7 @@
 tests
+node_modules
+coverage
+run*
+repository*
+*.db
+*logs
