@@ -1,8 +1,7 @@
 /*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 const Botkit = require('botkit');
 const path = require('path');
-const storePath = path.resolve('requests.db');
-const store = require('./bot/nedbPersistentStorage.js')(storePath);
+const storeFactory = require('./bot/nedbPersistentStorage.js');
 const git = require('./bot/git.js');
 const responder = require('./bot/responder.js');
 const deployObserver = require('./bot/deployObserver.js');
@@ -15,7 +14,9 @@ const config = nconf.argv()
                     .env()
                     .file('config.json')
                     .defaults({
-                        logFolder: 'logs' 
+                        logFolder: 'logs',
+                        storePath: 'requests.db',
+                        repoDir: 'repository'
                     });
 
 const log = bunyan.createLogger({
@@ -32,7 +33,7 @@ if (!config.get('slackToken')) {
     process.exit(1);
 }
 
-if(!config.get('gitRepoUrl')) {
+if(!config.get('git:repoUrl')) {
     console.error('Error: git repo url not specified');
     process.exit(1);
 }
@@ -42,9 +43,11 @@ if(!config.get('environments')) {
     process.exit(1);
 }
 
-const environments = process.get('environments').split(',').map(x => x.trim());
-const gitSettings = process.get('git');
-git.initAtLocation(gitSettings.repoDir ||'repository', gitSettings.repoUrl, git.getCreds(gitSettings.userName, gitSettings.password))
+const store = storeFactory(path.resolve(config.get('storePath')));
+
+const environments = config.get('environments').split(',').map(x => x.trim());
+const gitSettings = config.get('git');
+git.initAtLocation(gitSettings.repoDir, gitSettings.repoUrl, git.getCreds(gitSettings.userName, gitSettings.password))
     .then(gitObj => {
         const controller = Botkit.slackbot({debug: false });
 
