@@ -25,4 +25,3 @@ There are also the following optional options:
 - `port`: the port number you wish the web service to use
 - `logFolder`: where you wish the logs to be stored
 - `storePath`: where the database file is stored
-
