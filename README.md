@@ -27,6 +27,7 @@ There are also the following optional options:
 - `logFolder`: where you wish the logs to be stored
 - `storePath`: where the database file is stored
 
+###TODO: not published on npm yet
 ##Quick start
     npm install deploybot -g
     mkdir ~/deploybot
