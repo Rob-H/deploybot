@@ -31,4 +31,3 @@ There are also the following optional options:
     npm install deploybot -g
     mkdir ~/deploybot
     deploybot --slackToken {yourslacktoken} --environments "ci, qa, live" --git:repoUrl "https://github.com/Rob-H/deploybot.git"
-
