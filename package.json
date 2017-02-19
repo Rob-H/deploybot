@@ -1,5 +1,5 @@
 {
-  "name": "deploy-bot",
+  "name": "deploybot",
   "version": "0.0.0",
   "description": "A slack bot to remind you when a commit gets to different environments",
   "main": "index.js",
@@ -12,7 +12,7 @@
     "slack",
     "git"
   ],
-  "author": "Rob Haley <robert.haley@scribestar.com>",
+  "author": "Rob Haley <rob_haley@live.co.uk>",
   "dependencies": {
     "body-parser": "^1.15.2",
     "botkit": "^0.2.2",
