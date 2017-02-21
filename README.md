@@ -1,5 +1,5 @@
 #deploybot
-I found that I spent a lot of time checking if my commits had been deployed to certain environments. So this is a simple slack bot that will, when asked, send you a message to let you know when a commit has been deployed. 
+I found that I spent a lot of time checking if my commits had been deployed to certain environments. So this is a simple slack bot that will, when asked, send you a message to let you know when a commit has been deployed.
 
 It exposes and endpoint that you can curl as a step in your deployment once it is complete e.g.
     curl example goes here
@@ -31,4 +31,5 @@ There are also the following optional options:
 ##Quick start
     npm install deploybot -g
     mkdir ~/deploybot
+    cd ~/deploybot
     deploybot --slackToken {yourslacktoken} --environments "ci, qa, live" --git:repoUrl "https://github.com/Rob-H/deploybot.git"
