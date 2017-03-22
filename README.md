@@ -1,4 +1,4 @@
-#slack-deploy-bot
+# slack-deploy-bot
 I found that I spent a lot of time checking if my commits had been deployed to certain environments. So this is a simple slack bot that will, when asked, send you a message to let you know when a commit has been deployed.
 
 It exposes and endpoint that you can curl as a step in your deployment once it is complete e.g.
@@ -7,7 +7,7 @@ And if you have asked to be reminded about a commit that is before the one is de
 
 ###Todo: add api key for validating deployments, ssl etc
 
-##Configuration
+## Configuration
 `slack-deploy-bot` uses [nconf](https://www.npmjs.com/package/nconf) for configuration, so therefore can be configured using (in order of precedence) :
 1. command line arguments
 2. environment variables
@@ -27,7 +27,7 @@ There are also the following optional options:
 - `logFolder`: where you wish the logs to be stored
 - `storePath`: where the database file is stored
 
-##Quick start
+## Quick start
     npm install slack-deploy-bot -g
     mkdir ~/deploybot
     cd ~/deploybot
