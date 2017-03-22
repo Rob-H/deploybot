@@ -1,5 +1,5 @@
 {
-  "name": "deploybot",
+  "name": "slack-deploy-bot",
   "version": "0.0.0",
   "description": "A slack bot to remind you when a commit gets to different environments",
   "main": "index.js",
@@ -31,6 +31,6 @@
   },
   "preferGlobal": true,
   "bin": {
-    "deploybot": "index.js"
+    "slack-deploy-bot": "index.js"
   }
 }
