@@ -2,12 +2,14 @@
 I found that I spent a lot of time checking if my commits had been deployed to certain environments. So this is a simple slack bot that will, when asked, send you a message to let you know when a commit has been deployed.
 
 It exposes and endpoint that you can curl as a step in your deployment once it is complete e.g.
-    slack-deploy-bot\
-        --slackToken 'your-slack-token'\
-        --environments "ci, qa, live"\
-        --git:repoUrl "file:///Users/robh/projects/deploy-bot"\
-        --apiUserName "username"\
-        --apiPassword "password"
+
+    curl \
+        -H "Content-Type: application/json" \
+        -X POST \
+        -d '{"environment": "ci", "commitHash": "347198c95b0c97f44418626872fbc7c95990031b"}' \
+        -u user:password \
+        localhost:8080 \
+
 
 And if you have asked to be reminded about a commit that is before the one is deployed it will send you a message.
 
