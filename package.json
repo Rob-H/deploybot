@@ -1,6 +1,6 @@
 {
   "name": "slack-deploy-bot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A slack bot to remind you when a commit gets to different environments",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,8 @@
   },
   "keywords": [
     "slack",
-    "git"
+    "git",
+    "deploy"
   ],
   "author": "Rob Haley <rob_haley@live.co.uk>",
   "dependencies": {
@@ -33,5 +34,10 @@
   "preferGlobal": true,
   "bin": {
     "slack-deploy-bot": "index.js"
+  },
+  "repository": {
+    { "type": "git",
+      "url": "https://github.com/Rob-H/deploybot"  
+    }
   }
 }
