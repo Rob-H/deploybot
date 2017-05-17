@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 const bunyan = require('bunyan');
 const fs = require('./promised-file-system.js');
 const config = require('./bot/config.js');
+const basicAuth = require('express-basic-auth');
 
 if (!config.slackToken) {
     console.error('Error: slackToken not specified');
@@ -24,6 +25,16 @@ if(!(config.git && config.git.repoUrl)) {
 
 if(!config.environments) {
     console.error('Error: comma separated environment list not specified');
+    process.exit(1);
+}
+
+if((config.apiUserName && !config.apiPassword)) {
+    console.error('Error: apiUserName provided without apiPassword');
+    process.exit(1);
+}
+
+if((config.apiPassword && !config.apiUserName)) {
+    console.error('Error: apiPassword provided without apiUserName');
     process.exit(1);
 }
 
@@ -97,6 +108,12 @@ fs.ensureDir(config.logFolder).then(() => {
 
             const app = express();
             app.use(bodyParser.json());
+
+            if(config.apiUserName) {
+                app.use(basicAuth({
+                    users: { [config.apiUserName]: config.apiPassword }
+                })); 
+            }
 
             app.post('/', function(req, res) {
                 log.info('deploy notification received', req.body);
